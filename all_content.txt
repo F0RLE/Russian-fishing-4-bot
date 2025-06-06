@@ -66,10 +66,10 @@ if __name__ == "__main__":
 
 
 # === config.yaml ===
-VERSION: "0.5.0"
+VERSION: "0.4.0"
 
 SCRIPT:
-  LANGUAGE: "en"
+  LANGUAGE: "ru"
   LAUNCH_OPTIONS: ""
   SMTP_VERIFICATION: true
   IMAGE_VERIFICATION: true
@@ -80,13 +80,6 @@ SCRIPT:
   SPOD_ROD_RECAST_DELAY: 1800
   LURE_CHANGE_DELAY: 1800
   ALARM_SOUND: "./static/sound/guitar.wav"
-  RANDOM_CAST_PROBABILITY: 0.25
-  SCREENSHOT_TAGS:
-    - "green"
-    - "yellow"
-    - "blue"
-    - "purple"
-    - "pink"
 
 KEY:
   TEA: -1
@@ -118,10 +111,9 @@ FRICTION_BRAKE:
 
 KEEPNET:
   CAPACITY: 100
-  FISH_DELAY: 0.0
-  GIFT_DELAY: 4.0
+  DELAY: 0.0
   FULL_ACTION: "quit"
-  WHITELIST:
+  RELEASE_WHITELIST:
     - "mackerel"
     - "saithe"
     - "herring"
@@ -129,19 +121,12 @@ KEEPNET:
     - "scallop"
     - "mussel"
   BLACKLIST: []
-  TAGS:
-    - "green"
-    - "yellow"
-    - "blue"
-    - "purple"
-    - "pink"
 
 NOTIFICATION:
   EMAIL: "email@example.com"
   PASSWORD: "password"
   SMTP_SERVER: "smtp.gmail.com"
   MIAO_CODE: "example"
-  DISCORD_WEBHOOK_URL: ""
 
 PAUSE:
   DELAY: 1800
@@ -150,7 +135,6 @@ PAUSE:
 PROFILE:
   SPIN:
     MODE: "spin"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 5.0
     CAST_DELAY: 6.0
     TIGHTEN_DURATION: 0.0
@@ -162,7 +146,6 @@ PROFILE:
     TYPE: "normal"
   SPIN_WITH_PAUSE:
     MODE: "spin"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 5.0
     CAST_DELAY: 6.0
     TIGHTEN_DURATION: 1.0
@@ -174,7 +157,6 @@ PROFILE:
     TYPE: "pause"
   SPIN_WITH_LIFT:
     MODE: "spin"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 5.0
     CAST_DELAY: 6.0
     TIGHTEN_DURATION: 0.0
@@ -186,16 +168,13 @@ PROFILE:
     TYPE: "lift"
   BOTTOM:
     MODE: "bottom"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 5.0
     CAST_DELAY: 4.0
     POST_ACCELERATION: "off"
     CHECK_DELAY: 32.0
     CHECK_MISS_LIMIT: 16
-    PUT_DOWN_DELAY: 0.0
   PIRK:
     MODE: "pirk"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 1.0
     CAST_DELAY: 4.0
     SINK_TIMEOUT: 60.0
@@ -212,7 +191,6 @@ PROFILE:
     POST_ACCELERATION: "auto"
   PIRK_WITH_RETRIEVAL:
     MODE: "pirk"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 1.0
     CAST_DELAY: 4.0
     SINK_TIMEOUT: 60.0
@@ -229,7 +207,6 @@ PROFILE:
     POST_ACCELERATION: "auto"
   WAKEY_RIG:
     MODE: "pirk"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 1.0
     CAST_DELAY: 4.0
     SINK_TIMEOUT: 45.0
@@ -246,7 +223,6 @@ PROFILE:
     POST_ACCELERATION: "auto"
   ELEVATOR:
     MODE: "elevator"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 1.0
     CAST_DELAY: 4.0
     SINK_TIMEOUT: 60.0
@@ -259,7 +235,6 @@ PROFILE:
     POST_ACCELERATION: "auto"
   ELEVATOR_WITH_DROP:
     MODE: "elevator"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 1.0
     CAST_DELAY: 4.0
     SINK_TIMEOUT: 60.0
@@ -275,14 +250,13 @@ PROFILE:
     LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 5.0
     CAST_DELAY: 4.0
-    FLOAT_SENSITIVITY: 0.68
-    CHECK_DELAY: 1.0
-    PULL_DELAY: 0.5
-    DRIFT_TIMEOUT: 16.0
-    CAMERA_SHAPE: "square"
+    FLOAT_SENSITIVITY: 0.75  # Увеличьте до 0.75-0.80 (было 0.68)
+    CHECK_DELAY: 1.5         # Увеличьте до 1.5 (было 1.0)
+    PULL_DELAY: 0.7          # Увеличьте до 0.7 (было 0.5)
+    DRIFT_TIMEOUT: 45.0      # Увеличьте до 45-60 (было 16.0)
+    CAMERA_SHAPE: "rectangle"  # Измените на "rectangle" (было "square")
   BOLOGNESE:
     MODE: "bolognese"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 5.0
     CAST_DELAY: 4.0
     FLOAT_SENSITIVITY: 0.68
@@ -290,7 +264,17 @@ PROFILE:
     PULL_DELAY: 0.5
     DRIFT_TIMEOUT: 32.0
     CAMERA_SHAPE: "square"
-    POST_ACCELERATION: "off"
+    PROFILE:
+  MAX_udochka:
+    MODE: "telescopic"
+    LAUNCH_OPTIONS: "-r -H"
+    CAST_POWER_LEVEL: 5.0
+    CAST_DELAY: 4.0
+    FLOAT_SENSITIVITY: 0.80  # Повышенная чувствительность
+    CHECK_DELAY: 2.0         # Дольше проверяем поплавок
+    PULL_DELAY: 0.8          # Медленнее подсекаем
+    DRIFT_TIMEOUT: 60.0      # Дольше ждем поклевку
+    CAMERA_SHAPE: "rectangle" # Прямоугольная область для наблюдения
 
 
 
@@ -399,13 +383,13 @@ a computer network, with no transfer of a copy,
 
 
 # === README.md ===
-**[[中文版]][readme]**
+**[[中文版]][README]**
 <div align="center">
 
-![RF4S][rf4s_logo]
+![RF4S][RF4S logo]
 <h1 align="center">RF4S: Russian Fishing 4 Script</h1>
 
-**A simple Russian Fishing 4 fishing bot, supporting spin, bottom, marine, and float fishing modes.**
+**A simple fishing bot for Russian Fishing 4, supporting spin, bottom, marine, and float fishing.**
 
 <a target="_blank" href="https://opensource.org/license/gpl-3-0" style="background:none">
     <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" style="height: 22px;" />
@@ -416,36 +400,71 @@ a computer network, with no transfer of a copy,
 <a target="_blank" href="http://makeapullrequest.com" style="background:none">
     <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat" style="height: 22px;" />
 </a>
-<!-- <a target="_blank" href="https://github.com/pylint-dev/pylint" style="background:none">
+<a target="_blank" href="https://github.com/pylint-dev/pylint" style="background:none">
     <img src="https://img.shields.io/badge/linting-pylint-yellowgreen" style="height: 22px;" />
-</a> -->
-<!-- <a target="_blank" href="https://github.com/psf/black" style="background:none">
+</a>
+<a target="_blank" href="https://github.com/psf/black" style="background:none">
     <img src="https://img.shields.io/badge/code%20style-black-000000.svg" style="height: 22px;" />
-</a> -->
+</a>
 <!-- <a target="_blank" href="link_to_docs, tbd" style="background:none">
     <img src="https://img.shields.io/badge/docs-%23BE1B55" style="height: 22px;" />
 </a> -->  
 
-![Python badge][python_badge]
-![Windows badge][windows_badge]
+![Python badge][Python badge]
+![Windows badge][Windows badge]
 
 </div>
 
 > [!TIP]
-> Join the [Discord server][discord] if you want to suggest new features, report bugs or get help on how to use the script.
+> Join the [Discord server][Discord] if you want to suggest new features, report bugs or get help on how to use the script.
 
 
-## Getting Started
+## Getting Started  
 ### Prerequisites
-Download and install **[Python 3.12.*][python]**.  
+Download and install **[Python 3.12][Python]**.  
 
 > [!IMPORTANT] 
-> Ensure the **"Add Python to PATH"** option is selected during installation.  
+> Ensure Python is added to `PATH` during installation.
 
 > [!WARNING] 
-> Python 3.13+ are not supported.
+> Python 3.13+ is not supported.
+
 ### Installation
-See **[INSTALLATION][installation]**.
+1. Open cmd or PowerShell (not Python)
+2. Clone the repository and navigate into the project directory:
+```
+git clone https://github.com/dereklee0310/RussianFishing4Script.git
+cd RussianFishing4Script
+```
+> [!TIP]
+> Or, **[download this repository][Download]** and unzip it if you don't have `git` installed on your pc.  
+> Then run open cmd or PowerShell (not Python) and navigate into the project directory:
+> ```
+> cd "path\to\the\project"
+> ```
+> `path\to\the\project` should look something like `...\...\RussianFishing4Script-main`
+
+> [!WARNING] 
+> The download path cannot contain non-English characters.
+
+### Dependencies
+In cmd or PowerShell, type the command below to install required packages and create a default configuration file:
+```
+.\setup.bat
+```
+
+> [!TIP] 
+> Create a virtual environment to avoid version conflicts if you already have Python installed.
+
+### Setup
+- Enable **[Mouse ClickLock][Clicklock]** in Windows mouse settings and set the time before locking to "Long".
+- Make sure your game language is the same as the setting in `config.yaml` (default is `EN`).
+- Set interface scale to `1x`.
+- Set display mode to `window mode` or `borderless windowed`.
+- Make sure your reel is fully loaded, or equip a rainbow line and use `-R` flag (see **[configuration guide][Configuration guide]**).
+- Add tea, carrot, and coffee to your **[favorites][Favorite food]** if you want to use `-r` or `-c` flag.
+- To use a feature that replaces an item for you, you must add items to your **[favorites][Favorite lure]** for replacement.
+
 ## Usage
 ### Before you start...
 - Move your character to the fishing spot before running the script
@@ -457,104 +476,69 @@ See **[INSTALLATION][installation]**.
 > Currently, only bottom fishing mode support multiple rods.
 
 ### Let's Run it!
-1. Open cmd/PowerShell
-2. Navigate into the project directory and run the script with default configuration. Type `CTRL-C` to quit.
+Run the script with default configuration:
 ```
-cd "path\to\the\project"
 python tools\main.py
 ```
-> [!TIP]
-> `path\to\the\project` is the directory where you placed the files after cloning or extracting the project.  
-> ![path]
+For more advanced usage, see **[configuration guide][Configuration guide]**.
+> [!IMPORTANT]
+> If you want to run it in a new terminal window, don't forget to navigate into the project directory:
+> ```
+> cd "path\to\the\project"
+> python tools\main.py
+> ```
 
-> [!TIP]
-> See **[CONFIGURATION][configuration]** for advanced usage and configuration options.
+> [!NOTE]
+> The script stops once the keepnet is full. Stop it manually by typing `Ctrl-C` in your terminal. 
 
 ## Tools
-### Craft items
-Select materials before you run it, press `Ctrl-C` to quit.
+### Craft Items
+**Craft items until materials run out (press `Ctrl-C` to quit):**
 ```
 python tools\craft.py
 ```
-### Harvest baits
-Press `Ctrl-C` to quit.
+**Craft 10 items:**
+```
+python tools\craft.py -n 10
+```
+**Discard crafted groundbaits:**
+```
+python tools\craft.py -d
+```
+> [!IMPORTANT]
+> Select materials before you run the script.
+### Harvest Baits
+**Harvest baits (press `Ctrl-C` to quit):**
 ```
 python tools\harvest.py
 ```
+**Replenish hunger and comfort while harvesting:**
+```
+python tools\harvest.py -r
+```
+**Open control panel while waiting (reduces power consumption):**
+```
+python tools\harvest.py -s
+```
 ### Toggle moving forward
-Press `W`to pause, `S` to quit.
+**Toggle Auto-Move (`W`to pause, `S` to quit):**
 ```
 python tools\move.py
 ```
-### Automate friction brake
-Press `G` to reset, `H` to quit.
+**Move while holding Shift:**
 ```
-python tools\auto_friction_brake.py
-```
-### Calculate tackle's stats and friction brake
-```
-python tools\calculate.py
+python tools\move.py -s
 ```
 
-## Troubleshooting
-<details>
-<summary>How to stop the script?</summary>
-
-- Type `Ctrl-C` in your terminal. 
-</details>
-<!-- ------------------------------- divide -------------------------------- -->
-<details>
-<summary>Can't stop the script?</summary>
-
-- Some keys might have been pressed down (e.g. `Ctrl`, `Shift`, `Mouse button`, etc.),  
-  press them again to release it and type `Ctrl-C` as usual.
-</details>
-<!-- ------------------------------- divide -------------------------------- -->
-<details>
-<summary>Stuck at casting 128%?</summary>
-
-- Check that the game language and script language settings are the same.
-- Make sure your reel is fully loaded, or equip a rainbow line and use `-R` flag. 
-</details>
-
-<!-- ------------------------------- divide -------------------------------- -->
-<details>
-<summary>Didn't lift the rod after the retrieval is finished?</summary>
-
-- Make sure your reel is fully loaded, or equip a rainbow line and use `-R` flag. 
-- Change the game window size.
-- Reduce the value of `SPOOL_CONFIDENCE` in `config.yaml`.
-- Keep away from light sources or turn off the boat light.
-</details>
-<!-- ------------------------------- divide -------------------------------- -->
-<details>
-<summary>Script is running but nothing happen?</summary>
-
-- Open cmd/Powershell as administrator and run it again.
-</details>
-<!-- ------------------------------- divide -------------------------------- -->
-
-## Changelog
-See **[CHANGELOG][changelog].**
-
-## License
-**[GNU General Public License version 3][license]**
-
-## Contributing
-Any contribution, bug report, or idea about new features is welcome.
-
-## Contact me
-dereklee0310@gmail.com 
-
-[readme]: /docs/zh-TW/README.md
-[rf4s_logo]: /static/readme/RF4S.png
-[python_badge]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoCo
+### Automate Friction Brake
+**Automate Fric
 
 
 # === requirements.txt ===
 pyautogui==0.9.54
 keyboard==0.13.5
 pywin32==306
+# configparser==6.0.0
 pynput==1.7.6
 opencv-python==4.8.0.76
 Pillow==10.1.0
@@ -566,7 +550,6 @@ pyyaml==6.0.2
 yacs==0.1.8
 rich==13.9.4
 bump-my-version==0.32.1
-discord-webhook==1.4.1
 # reference: https://stackoverflow.com/questions/68704443/python-playsound-error-261-for-command-the-driver-cannot-recognize-the-specifie
 
 
@@ -588,79 +571,71 @@ if not exist ".\config.yaml" copy ".\rf4s\config\config.yaml" ".\config.yaml"
 # === docs\en\CHANGELOG.md ===
 **[[中文版]][CHANGELOG]**
 
-## 0.5.0 (2025-06-06)
-
-### 🆕 New Features
-- **Discord Webhook Integration**: Added support for termination notifications via Discord webhooks. Set it with `NOTIFICATION.DISCORD_WEBHOOK_URL`.
-- **Enhanced Tag Detection**: Added precise colored tag identification. Configure filtering with `KEEPNET.TAGS`.
-- **Tag Filtering in Screenshots**: Integrated tag detection into screenshots. Use `SCRIPT.SCREENSHOT_TAGS` for filtering.
-- **Profile-Specific Launch Options**: Profiles now support `LAUNCH_OPTIONS` that override global `SCRIPT.LAUNCH_OPTIONS`.
-- **Bottom Mode Enhancement**: Added `PUT_DOWN_DELAY` to wait before checking other rods after hooking a fish.
-- **Automated Gift Handling**: Automatically accepts gifts. Configure delay with `GIFT_DELAY`.
-- **Random Rod Cast (`-RC`)**: Added flag for redundant casts. Adjust probability via `SCRIPT.RANDOM_CAST_PROBABILITY`.
-
-### 🔧 Improvements
-- **Result Table**: More detailed information has been added.
-- **Stage Transitions**: Smoother reset/retrieve/pull sequences.
-- **Gear Protection**: Decreases friction brake before quitting when using `-f` flag.
-- **Configuration Fallback**: Gracefully defaults to built-in settings on missing configurations.
-
-### 🐛 Bug Fixes
-- Fixed PVA/groundbait refill issues across different rigs.
-- Fixed missing material checks during crafting.
-- Fixed crash caused by small `CHECK_DELAY` values.
-- Fixed improper merging of `opts` into launch options.
-- Resolved incompatibility between `-E` and `-g` flags.
-- Fixed unexpected termination of `pirk` mode in edge cases.
-
-### 🗃️ Deprecations & Renames
-- `KEEPNET.DELAY` → `KEEPNET.FISH_DELAY`.
-- `KEEPNET.RELEASE_WHITELIST` → `KEEPNET.WHITELIST`.
-- Renamed launch options for clarity and consistency. Run `python tools\main.py -h` for details.
-
-### 🧼 Maintenance
-- Migrated code formatting/linting from Pylint/Black to Ruff.
-
 ## 0.4.2 (2025-04-07)
-- Fixed a bug where the friction brake threshold was not being applied correctly.
-- Fixed unexpected termination due to running out of fillet when using pirk/elevator mode.
+- Fixed a bug where the friction brake threshold was not being applied correctly
+
+- Fixed unexpected termination due to running out of fillet when using pirk/elevator mode
+
 
 ## 0.4.1 (2025-03-30)
-- Fixed a bug that left/right trolling mode doesn't work properly.
-- Fixed an issue where electro mode doesn't work and compatible with `-g` flag.
-- Fixed broken lure detection mechanism.
-- Fixed a bug that pause is hard to trigger when using "toggle moving forward" tool.
-- Added missing `POST_ACCELERATION` setting to `BOLOGNESE` mode.
-- Tools now display config before running.
-- Improved configuration guide.
+
+- Fixed a bug that left/right trolling mode doesn't work properly
+
+- Fixed an issue where electro mode doesn't work and compatible with `-g` flag
+
+- Fixed broken lure detection mechanism
+
+- Fixed a bug that pause is hard to trigger when using "toggle moving foward" tool 
+
+- Added missing `POST_ACCELERATION` setting to `BOLOGNESE` mode
+
+- Tools now display config before running
+
+- Improved configuration guide
 
 ## 0.4.0 (2025-03-16)
+
 - Fixed a bug that the casting power level cannot be set to a value other than 1 or 5.
-- Added `RETRIEVAL_TIMEOUT` to `SPIN` mode, allowing the script fall back to normal retrieval after retrieval with lift/pause timed out.
+
+- Added `RETRIEVAL_TIMEOUT` to `SPIN` mode, allowing the script fall back to normal
+  retrieval after retrieval with lift/pause timed out.
 
 ## 0.3.0 (2025-03-16)
+
 - Reduced the sensitivity of lure break detection to avoid abnormal termination in the RU version.
+
 - Added a new `KEEPNET.BLACKLIST` setting, blacklisted fish will always be released.
+
 - Added a new `SHIFT` setting to `PIRK` mode, allowing users to hold shift while pirking.
+
 - Increased check frequency for better user experience.
+
 - Fixed a bug that the auto-friction-brake is not working properly.
-- Updated READMEs.
+
+- Updated READMEs
+
 
 ## 0.2.1 (2025-03-08)
-- Fixed a bug that auto-friction-brake, snag detection, and spooling detection are always disabled even the correct flags are used.
+
+- Fixed a bug that auto-friction-brake, snag detection, and spooling detection are always
+  disabled even the correct flags are used.
 
 ## 0.2.0 (2025-03-07)
+
 - Fixed a bug that `-c` feature is not working properly.
-- Added a `DEPTH_ADJUST_DURATION` setting to the `pirk` fishing mode to allow the user to set the duration of tightening the fishing line after opening the reel to adjust the depth of the lure.
+
+-  Added a `DEPTH_ADJUST_DURATION` setting to the `pirk` fishing mode to allow the user to set the duration of tightening the fishing line after opening the reel to adjust the depth of the lure.
 
 ## 0.1.0 (2025-03-06)
+
 - New config system, bolognese mode, trolling mode, window mode support, and more.
 
 [CHANGELOG]: /docs/zh-TW/CHANGELOG.md
 
 
 # === docs\en\CONFIGURATION.md ===
-**[[中文版]][configuration]**
+**[[中文版]][Chinese configuration guide]**
+# Configuration Guide
 ## Using Launch Options
 You can use launch options to enable one or more features at startup.
 ### Display Help Message
@@ -669,9 +644,9 @@ python tools\main.py -h
 ```
 ### Help Message
 ```
-usage: main.py [-h] [-R] [-t] [-c] [-a] [-r] [-H] [-L] [-m] [-P] [-RC] [-SC] [-l] [-e] [-FB] [-GR] [-b] [-s] [-d] [-E]
-               [-M] [-D] [-S] [-SO] [-SR] [-DM] [-GB] [-PVA] [-p PID | -N PROFILE_NAME] [-n FISH_COUNT]
-               [-BT [DURATION]] [-T [DIRECTION]] [-BL [ACTION]]
+usage: main.py [-h] [-c] [-A] [-r] [-H] [-g] [-f] [-l] [-C] [-o] [-L] [-x] [-X] [-b] [-S] [-e] [-P] [-M] [-s] [-so]
+               [-gb] [-dm] [-pva] [-E] [-a | -m] [-d | -R] [-p PID | -N PROFILE_NAME] [-n FISH_COUNT] [-t [DURATION]]
+               [-T [DIRECTION]] [-bl [ACTION]]
                [opts ...]
 
 Start AFK script for Russian Fishing 4
@@ -681,52 +656,50 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  -R, --rainbow         rainbow line meter for retrieval detection
-  -t, --tag             keep only tagged fishes
-  -c, --coffee          drink coffee if stamina is low during a fish fight
-  -a, --alcohol         drink alcohol before keeping the fish
-  -r, --refill          consume tea and carrot if hunger or comfort is low
-  -H, --harvest         harvest baits before casting the rod
-  -L, --lure            change current lure with a random one, mode: spin
-  -m, --mouse           move mouse randomly before casting the rod
-  -P, --pause           pause the script before casting the rod occasionally
-  -RC, --random-cast    do a redundant rod cast randomly
-  -SC, --skip-cast      skip the first rod cast
-  -l, --lift            lift the tackle constantly during a fish fight
-  -e, --electro         enable electric mode for Electro Raptor series reel
-  -FB, --friction-brake
-                        adjust friction brake automatically
-  -GR, --gear-ratio     switch the gear ratio after the retrieval timed out
-  -b, --bite            save a screenshot in screenshots/ before rod cast (for bite spot)
-  -s, --screenshot      save a screenshot in screenshots/ after you caught a fish
-  -d, --data            save fishing data in /logs
-  -E, --email           send email noticication after the script stop
+  -c, --coffee          drink coffee if stamina is low
+  -A, --alcohol         drink alcohol before keeping the fish regularly
+  -r, --refill          refill hunger and comfort by consuming tea and carrot
+  -H, --harvest         harvest baits before casting
+  -g, --gear_ratio      switch the gear ratio after the retrieval timed out
+  -f, --friction_brake  enable auto friction brake
+  -l, --lift            lift the tackle constantly while pulling a fish
+  -C, --skip_cast       Immediately start retrieving for the first fish
+  -o, --spod_rod        recast spod rod regularly
+  -L, --lure            change current lure with a random one regularly, mode: spin
+  -x, --mouse           move mouse randomly before casting the rod
+  -X, --pause           pause the script before casting the rod regularly
+  -b, --bite            take a screenshot after casting in screenshots/ (for fish spot)
+  -S, --screenshot      take a screenshot of every fish you caught in screenshots/
+  -e, --email           send email noticication after the script stop
+  -P, --plot            save fishing data in /logs
   -M, --miaotixing      send miaotixing notification after the script stop
-  -D, --discord         send Discord notification after the script stop
-  -S, --shutdown        shutdown computer after the script stop
-  -SO, --signout        sign out instead of closing the game
-  -SR, --spod-rod       recast spod rod
-  -DM, --dry-mix        enable dry mix refill, mode: bottom
-  -GB, --groundbait     enable groundbait refill, mode: bottom
-  -PVA, --pva           enable pva refill, mode: bottom
+  -s, --shutdown        shutdown computer after the script stop
+  -so, --signout        Sign out instead of closing the game
+  -gb, --groundbait     enable groundbait refill, mode: bottom
+  -dm, --dry_mix        enable dry mix refill, mode: bottom
+  -pva, --pva           enable pva refill, mode: bottom
+  -E, --electro         enable electric mode for Electro Raptor series reel
+  -a, --all             keep all captured fishes, used by default
+  -m, --marked          keep only the marked fishes
+  -d, --default-spool   use default spool icon for retrieval detection, used by default
+  -R, --rainbow-line    use rainbow line meter for retrieval detection
   -p PID, --pid PID     id of the profile you want to use
   -N PROFILE_NAME, --pname PROFILE_NAME
                         name of the profile you want to use
   -n FISH_COUNT, --fishes-in-keepnet FISH_COUNT
                         number of fishes in your keepnet, 0 by default
-  -BT [DURATION], --boat-ticket [DURATION]
-                        renew boat ticket, DURATION: 1, 2, 3 or 5, 5 by default
+  -t [DURATION], --boat-ticket [DURATION]
+                        enable boat ticket auto renewal, DURATION: '1', '2', '3' or '5', will use a 5 hour ticket if
+                        duration is not specified
   -T [DIRECTION], --trolling [DIRECTION]
-                        enable trolling mode, DIRECTION: 'forward', 'left', or 'right', 'forward' by default
-  -BL [ACTION], --broken-lure [ACTION]
-                        replace broken lure, ACTION: 'replace' or 'alarm', 'replace' by default
+                        enable trolling mode, DIRECTION: 'forward',''left', or 'right', will only move forward by
+                        press 'j' if direction is not specified
+  -bl [ACTION], --broken-lure [ACTION]
+                        enable broken lure auto-replace, ACTION: 'replace' or 'alarm', will replace the broken lure if
+                        action is not specified
 ```
 > [!TIP]
 > Other tools like `craft.py` or `move.py` also support `-h` for displaying help messages. 
-
-> [!IMPORTANT]
-> Add tea and carrot/coffee to your **[favorites][favorite_food]** if you want to use `-r` or `-c` options.  
-> To use a option that replaces an item for you, you also need to add items to your **[favorites][favorite_lure]**.
 
 ### Examples
 **Set the number of fishes in the keepnet to 32 (68 fishes to catch):**
@@ -775,130 +748,71 @@ PROFILE:
     MODE: "spin"
     CAST_POWER_LEVEL: 5.0
     CAST_DELAY: 4.0
-    TIGHTEN_DURATION: 0.0
-    RETRIEVAL_DURATION: 
-
-
-# === docs\en\INSTALLATION.md ===
-**[[中文版]][installation]**
-### Approach 1: Clone via Git
-```
-git clone https://github.com/dereklee0310/RussianFishing4Script.git
-cd RussianFishing4Script
-.\setup.bat
-```
-> [!IMPORTANT] 
-> Git must be installed on your system.
-### Approach 2: Manual Download
-1. [Download this repository][download].
-2. Right-click `RussianFishing4Script-main.zip` and select "Extract here".
-3. Open the extracted folder (`RussianFishing4Script-main`) and double-click `setup.bat` to install dependencies.
-> [!TIP] 
-> Create a virtual environment to avoid version conflicts if you already have Python installed.
-
-> [!WARNING] 
-> The download path cannot contain non-English characters.
-
-## Environment Setup
-### Enable Mouse ClickLock
-- Go to Windows Mouse Settings > Enable **[Mouse ClickLock][clicklock]**.
-- Set the time before locking to "Long".
-### Language
-- Confirm your game language matches the language setting in config.yaml (default is "en").
-### Display
-- Set both system and in-game interface scales to "1x".
-- Use "window mode" or "borderless windowed" for the game window mode.
-### Spool Detection
-- By default, the bot checks the status of the spool (red box) for retrieval detection.  
-  The spool must be filled with fishing line so the bot can decide whether the retriaval is finished.
-- If you have rainbow line equiped, use `-R` option to detect meter instead (green box) for better accuracy. 
-- Please refer to [configuration guide][configuration] to see how to use launch options.
-  
-![status]
-
-[installation]: /docs/zh-TW/INSTALLATION.md
-[download]: https://github.com/dereklee0310/RussianFishing4Script/archive/refs/heads/main.zip
-[configuration]: /docs/en/CONFIGURATION.md
-[clicklock]: /static/readme/clicklock.png
-[status]: /static/readme/status.png
+    TIGHTE
 
 
 # === docs\zh-TW\CHANGELOG.md ===
-**[[English version]][CHANGELOG]**
-
-## 0.5.0 (2025-06-06)
-
-### 🆕 新功能
-- **Discord Webhook 整合**：新增腳本終止通知的 Discord Webhook 支持。使用 `NOTIFICATION.DISCORD_WEBHOOK_URL` 進行設定。
-- **增強標籤檢測**：新增精確識別彩色標籤功能。通過 `KEEPNET.TAGS` 配置過濾條件。
-- **截圖標籤過濾**：將標籤檢測整合至截圖功能。使用 `SCRIPT.SCREENSHOT_TAGS` 配置過濾條件。
-- **設定檔專屬啟動參數**：設定檔新增 `LAUNCH_OPTIONS` 優先級覆蓋全域 `SCRIPT.LAUNCH_OPTIONS`。
-- **底部模式優化**：新增 `PUT_DOWN_DELAY` 參數，在釣到魚後等待指定時間再檢查其他魚竿。
-- **自動禮物處理**：新增自動接收禮物功能。通過 `GIFT_DELAY` 配置等待時間。
-- **隨機拋竿 (`-RC`)**：新增冗餘拋竿指令。通過 `SCRIPT.RANDOM_CAST_PROBABILITY` 調整概率。
-
-### 🔧 改進
-- **結果表格**：新增更詳細的顯示資訊。
-- **階段過渡**：重置／回收／提竿流程更流暢。
-- **裝備保護**：使用 `-f` 參數退出時自動降低捲線器阻力。
-- **設定回退**：遺失設定項時優雅回退至內建預設值。
-
-### 🐛 錯誤修復
-- 修復不同釣組下 PVA／誘餌補給異常問題。
-- 修復製作物品時未檢測材料耗盡的問題。
-- 修復小 `CHECK_DELAY` 值導致崩潰的問題。
-- 修復 `opts` 參數未正確合併至啟動參數的問題。
-- 解決 `-E` 和 `-g` 參數衝突問題。
-- 修復 `pirk` 模式在極端情況下意外終止的問題。
-
-### 🗃️ 棄用與重新命名
-- `KEEPNET.DELAY` → `KEEPNET.FISH_DELAY`。
-- `KEEPNET.RELEASE_WHITELIST` → `KEEPNET.WHITELIST`。
-- 啟動參數名稱優化統一。執行 `python tools\main.py -h` 查看詳細變更。
-
-### 🧼 維護
-- 程式碼格式化／檢查工具從 Pylint／Black 遷移至 Ruff。
+**[[English Version]][CHANGELOG]**
 
 ## 0.4.2 (2025-04-07)
-- 修復摩擦制動閾值設定未正確生效的問題。
-- 修正使用打狀態／電梯模式時，當魚餌耗盡導致腳本意外終止的問題。
+- 修復摩擦制動閾值設定未正確生效的問題
+
+- 修正使用打狀態/電梯模式時，當魚餌耗盡導致腳本意外終止的問題
+
 
 ## 0.4.1 (2025-03-30)
-- 修復左／右拖釣模式無法正常運作的錯誤。
-- 修復電輪模式無法運作及與 `-g` 相容性的問題。
-- 修復損壞的誘餌偵測機制。
-- 修復使用「切換前進」工具時暫停功能難以觸發的問題。
-- 為 `BOLOGNESE` 模式新增遺漏的 `POST_ACCELERATION` 設定。
-- 工具現在會在執行前顯示設定。
-- 改進設定指南。
+- 修復左/右拖釣模式無法正常運作的錯誤
+
+- 修復電輪模式無法運作及與 `-g` 相容性的問題
+
+- 修復損壞的誘餌偵測機制
+
+- 修復使用「切換前進」工具時暫停功能難以觸發的問題
+
+- 為 `BOLOGNESE` 模式新增遺漏的 `POST_ACCELERATION` 設定
+
+- 工具現在會在執行前顯示設定
+
+- 改進設定指南
 
 ## 0.4.0 (2025-03-16)
-- 修復了拋竿力度無法設定的問題。
-- 為 `SPIN` 模式新增 `RETRIEVAL_TIMEOUT` 設定，讓腳本在打狀態超時後切換至正常收線模式。
+
+- 修復了拋竿力度無法設定的問題
+
+- 為 `SPIN` 模式新增 `RETRIEVAL_TIMEOUT` 設定, 讓腳本在打狀態超時後切換至正常收線模式
 
 ## 0.3.0 (2025-03-16)
-- 降低擬餌斷裂檢測的靈敏度，避免異常終止問題。
-- 新增 `KEEPNET.BLACKLIST` 設定項，黑名單中的魚類將始終被放生。
-- 為 `PIRK` 模式新增 `SHIFT` 設定，允許用戶在使用 pirking 時按住 shift 鍵操作。
-- 提升檢測頻率以優化用戶體驗。
-- 修復自動摩擦制動器無法正常運作的 bug。
-- 更新 README 文件。
+
+- 降低擬餌斷裂檢測的靈敏度，避免異常終止問題
+- 新增 `KEEPNET.BLACKLIST` 設定項，黑名單中的魚類將始終被放生
+- 為 `PIRK` 模式新增 `SHIFT` 設定，允許用戶在使用 pirking 時按住 shift 鍵操作
+- 提升檢測頻率以優化用戶體驗
+- 修復自動摩擦制動器無法正常運作的 bug
+- 更新 README 文件
 
 ## 0.2.1 (2025-03-08)
-- 修復了即使使用正確參數，自動摩擦制動／卡鉤檢測／捲線檢測仍被強制禁用的 bug。
+
+- 修復了即使使用正確參數，自動摩擦制動/卡鉤檢測/捲線檢測仍被強制禁用的 bug
 
 ## 0.2.0 (2025-03-07)
-- 修復 `-c` 功能異常問題。
-- 為 `pirk` 釣魚模式新增 `DEPTH_ADJUST_DURATION` 設定項，允許用戶設置開捲後收緊釣線調整誘餌深度的持續時間。
+
+- 修復 `-c` 功能異常問題
+- 為 `pirk` 釣魚模式新增 `DEPTH_ADJUST_DURATION` 設定項，允許用戶設置開捲後收緊釣線調整誘餌深度的持續時間
 
 ## 0.1.0 (2025-03-06)
-- 全新配置系統，新增磯釣模式、拖釣模式、視窗模式支援等多項功能。
+
+- 全新配置系統，新增磯釣模式、拖釣模式、視窗模式支援等多項功能
 
 [CHANGELOG]: /docs/en/CHANGELOG.md
 
 
 # === docs\zh-TW\CONFIGURATION.md ===
-**[[English version]][configuration]**
+作者很懶，直接把丟給DeepSeek R1生成🤗
+
+**[[English Version]][Configuration guide]**
+
+# 配置指南  
+
 ## 使用啟動參數  
 可通過啟動參數啟用一項或多項功能。  
 
@@ -908,65 +822,61 @@ python tools\main.py -h
 ```  
 
 ### 幫助信息說明  
-```bash
-usage: main.py [-h] [-R] [-t] [-c] [-a] [-r] [-H] [-L] [-m] [-P] [-RC] [-SC] [-l] [-e] [-FB] [-GR] [-b] [-s] [-d] [-E]
-               [-M] [-D] [-S] [-SO] [-SR] [-DM] [-GB] [-PVA] [-p PID | -N PROFILE_NAME] [-n FISH_COUNT]
-               [-BT [DURATION]] [-T [DIRECTION]] [-BL [ACTION]]
-               [opts ...]
+```  
+usage: main.py [-h] [-c] [-A] [-r] [-H] [-g] [-f] [-l] [-C] [-o] [-L] [-x] [-X] [-b] [-S] [-e] [-P] [-M] [-s] [-so]  
+               [-gb] [-dm] [-pva] [-E] [-a | -m] [-d | -R] [-p PID | -N PROFILE_NAME] [-n FISH_COUNT] [-t [DURATION]]  
+               [-T [DIRECTION]] [-bl [ACTION]]  
+               [opts ...]  
 
-啟動《俄羅斯釣魚4》自動腳本
+啟動《俄羅斯釣魚4》自動腳本  
 
-位置參數:
-  opts                  覆寫配置文件參數
+位置參數:  
+  opts                  覆寫配置文件參數  
 
-選項:
-  -h, --help            顯示幫助訊息
-  -R, --rainbow         使用彩虹線計量器偵測收線
-  -t, --tag             僅保留已標記的魚
-  -c, --coffee          體力不足時飲用咖啡恢復體力
-  -a, --alcohol         在保存魚之前飲酒
-  -r, --refill          當飢餓或舒適度過低時自動補充茶與胡蘿蔔
-  -H, --harvest         拋竿前自動收餌
-  -L, --lure            定期隨機更換擬餌（僅限路亞模式）
-  -m, --mouse           拋竿前隨機移動滑鼠
-  -P, --pause           偶爾暫停腳本運行
-  -RC, --random-cast    隨機添加額外拋竿動作
-  -SC, --skip-cast      跳過首次拋竿直接開始收線
-  -l, --lift            遛魚時持續提竿以節省時間
-  -e, --electro         為Electro Raptor系列捲線器啟用電動模式
-  -FB, --friction-brake 啟用自動摩擦調整
-  -GR, --gear-ratio     收線超時後切換齒輪比
-  -b, --bite            拋竿前截圖保存至 screenshots/（可用於分析咬鉤點）
-  -s, --screenshot      捕獲魚隻後自動截圖保存
-  -d, --data            在/logs目錄保存釣魚數據
-  -E, --email           腳本停止後發送郵件通知
-  -M, --miaotixing      腳本停止後發送喵提醒通知
-  -D, --discord         腳本停止後發送Discord通知
-  -S, --shutdown        腳本結束後關閉電腦
-  -SO, --signout        退出遊戲而非關機
-  -SR, --spod-rod       定期重拋餌料竿（底釣模式）
-  -DM, --dry-mix        補充乾混合餌（底釣模式）
-  -GB, --groundbait     補充底餌（底釣模式）
-  -PVA, --pva           補充PVA餌（底釣模式）
-  -p PID, --pid PID     指定配置檔ID
-  -N PROFILE_NAME, --pname PROFILE_NAME
-                        指定配置檔名稱
-  -n FISH_COUNT, --fishes-in-keepnet FISH_COUNT
-                        魚護當前魚量（預設為0）
-  -BT [DURATION], --boat-ticket [DURATION]
-                        自動續費船票，時長：1, 2, 3或5小時（預設5小時）
-  -T [DIRECTION], --trolling [DIRECTION]
-                        啟用拖釣模式，方向：'forward','left','right'（預設按'j'前進）
-  -BL [ACTION], --broken-lure [ACTION]
-                        斷餌自動處理，操作：'replace'或'alarm'（預設更換）
-``` 
+選項:  
+  -h, --help            顯示幫助信息  
+  -c, --coffee          體力不足時飲用咖啡  
+  -A, --alcohol         定期飲用酒精飲料後存魚  
+  -r, --refill          通過茶和胡蘿蔔補充飢餓與舒適度  
+  -H, --harvest         拋竿前自動收餌  
+  -g, --gear_ratio      超時後切換齒輪比  
+  -f, --friction_brake  啟用自動摩擦剎車  
+  -l, --lift            遛魚時持續提竿  
+  -C, --skip_cast       跳過首次拋竿直接收線  
+  -o, --spod_rod        定期重拋餌料竿  
+  -L, --lure            定期隨機更換擬餌（僅路亞模式）  
+  -x, --mouse           拋竿前隨機移動鼠標  
+  -X, --pause           定期暫停腳本運行  
+  -b, --bite            拋竿後截圖保存至screenshots/（用於魚點分析）  
+  -S, --screenshot      為每條捕獲的魚截圖保存  
+  -e, --email           腳本停止後發送郵件通知  
+  -P, --plot            在/logs目錄保存釣魚數據  
+  -M, --miaotixing      腳本停止後發送喵提醒通知  
+  -s, --shutdown        腳本停止後關閉電腦  
+  -so, --signout        退出遊戲而非關閉  
+  -gb, --groundbait     補充底餌（僅底釣模式）  
+  -dm, --dry_mix        補充乾混合餌（僅底釣模式）  
+  -pva, --pva           補充PVA餌（僅底釣模式）  
+  -E, --electro         為Electro Raptor系列捲線器啟用電動模式  
+  -a, --all             保留所有魚獲（默認）  
+  -m, --marked          僅保留標記魚獲  
+  -d, --default-spool   使用默認線軸圖標檢測收線（默認）  
+  -R, --rainbow-line    使用彩虹線計量器檢測收線  
+  -p PID, --pid PID     指定配置檔ID  
+  -N PROFILE_NAME, --pname PROFILE_NAME  
+                        指定配置檔名稱  
+  -n FISH_COUNT, --fishes-in-keepnet FISH_COUNT  
+                        魚護當前魚量（默認0）  
+  -t [DURATION], --boat-ticket [DURATION]  
+                        自動續費船票，時長：'1','2','3'或'5'小時（默認5小時）  
+  -T [DIRECTION], --trolling [DIRECTION]  
+                        啟用拖釣模式，方向：'forward','left','right'（默認按'j'前進）  
+  -bl [ACTION], --broken-lure [ACTION]  
+                        斷餌自動處理，操作：'replace'或'alarm'（默認更換）  
+```  
 
 > [!TIP]  
-> 其他工具如`craft.py`或`move.py`也支持`-h`參數顯示幫助信息。
-
-> [!IMPORTANT]
-> 若需使用 `-r` 或 `-c` 參數，請將茶和胡蘿蔔/咖啡加入 **[收藏物品][favorite_food]**。  
-> 需自動更換物品的功能，請將相關物品加入 **[收藏物品][favorite_lure]**。
+> 其他工具如`craft.py`或`move.py`也支持`-h`參數顯示幫助信息。  
 
 ### 使用示例  
 **設置魚護當前魚量為32條（需捕獲68條）：**  
@@ -1054,15 +964,7 @@ _C.SCRIPT.RANDOM_ROD_SELECTION = True  # 底釣隨機選竿
 _C.SCRIPT.SPOOL_CONFIDENCE = 0.98  # 線軸檢測敏感度（值越低越敏感）  
 _C.SCRIPT.SPOD_ROD_RECAST_DELAY = 1800  # 餌料竿重拋間隔（秒）  
 _C.SCRIPT.LURE_CHANGE_DELAY = 1800  # 擬餌更換間隔（秒）  
-_C.SCRIPT.ALARM_SOUND = "./static/sound/guitar.wav"  # 提示音文件路徑
-_C.SCRIPT.RANDOM_CAST_PROBABILITY = 0.25 # 隨機拋竿失誤的機率
-_C.SCRIPT.SCREENSHOT_TAGS = ( # 魚獲截圖的標記種類，列表為空的話所有的魚都會截圖
-    "green",
-    "yellow",
-    "blue",
-    "purple",
-    "pink"
-)
+_C.SCRIPT.ALARM_SOUND = "./static/sound/guitar.wav"  # 提示音文件路徑  
 
 # --------------------------------- 快捷鍵設置 ------------------------------ #  
 _C.KEY = CN()  
@@ -1083,216 +985,235 @@ _C.STAT.HUNGER_THRESHOLD = 0.5  # 食用胡蘿蔔飢餓閾值
 _C.STAT.COMFORT_THRESHOLD = 0.51  # 飲茶舒適度閾值  
 _C.STAT.TEA_DELAY = 300  # 飲茶間隔（秒）  
 _C.STAT.COFFEE_LIMIT = 10  # 單次遛魚最大咖啡飲用量  
-_C.STAT.
+_C.STAT.COFFEE_PER_DRINK = 1  # 單次飲用咖啡量  
+_C.STAT.ALCOHOL_DELAY = 900  # 飲酒間隔（秒）  
+_C.STAT.ALCOHOL_PER_DRINK = 1  # 單次飲酒量  
 
-
-# === docs\zh-TW\INSTALLATION.md ===
-**[[English version]][installation]**
-
-## 安裝步驟
-### 方法一：透過 Git 克隆
-```
-git clone https://github.com/dereklee0310/RussianFishing4Script.git
-cd RussianFishing4Script
-.\setup.bat
-```
-> [!IMPORTANT]  
-> 系統必須已安裝 Git。
-### 方法二：手動下載
-1. [下載此儲存庫][download]。
-2. 對 `RussianFishing4Script-main.zip` 按右鍵並選擇「解壓縮到當前位置」。
-3. 開啟解壓後的資料夾 (`RussianFishing4Script-main`)，雙擊 `setup.bat` 以安裝依賴項。
-> [!TIP] 
-> 若已安裝 Python 其他版本，建議創建虛擬環境以避免依賴衝突。
-
-> [!WARNING]  
-> 下載路徑不得包含非英文字元。
-
-## 環境設定
-### 啟用滑鼠點擊鎖定
-- 前往 Windows 滑鼠設定 > 啟用 **[滑鼠點擊鎖定][clicklock]**。
-- 將鎖定前的時間設為「長」。
-### 語言設定
-- 確認遊戲語言與 `config.yaml` 中的語言設定一致（預設為 "EN"）。
-### 顯示設定
-- 將系統和遊戲內的介面縮放比例均設為「1x」。
-- 遊戲視窗模式請使用「視窗模式」或「無邊框視窗」。
-### 線軸偵測
-- 預設情況下，機器人會檢查線軸（紅色框）狀態以判斷收線是否完成。  
-  線軸必須裝滿線，機器人才能判斷收線是否結束。
-- 若裝備彩虹釣線，請使用 `-R` 選項改為偵測線的米數（綠色框）以獲得更佳準確度。
-- 請參閱 [設定指南][configuration] 瞭解如何使用啟動選項。
-  
-![status]
-
-[installation]: /docs/en/INSTALLATION.md
-[download]: https://github.com/dereklee0310/RussianFishing4Script/archive/refs/heads/main.zip
-[configuration]: /docs/zh-TW/CONFIGURATION.md
-[clicklock]: /static/readme/clicklock.png
-[status]: /static/readme/status.png
+# ----------------------------- 摩擦剎車設置（需-f參數）----------------------- #  
 
 
 # === docs\zh-TW\README.md ===
-**[[English version]][readme]**
+作者很懶，直接把丟給DeepSeek R1生成🤗
+
+**[[英文版]][README]**
 <div align="center">
 
-![rf4s_logo]
+![RF4S][RF4S logo]
 <h1 align="center">RF4S: 俄羅斯釣魚4腳本</h1>
 
-**俄羅斯釣魚4的簡易釣魚機器人，支援路亞、水底、海釣及手竿等模式。**
+**一個簡易的《俄羅斯釣魚4》輔助腳本，支持旋轉釣、底釣、海釣和浮標釣。**
 
 <a target="_blank" href="https://opensource.org/license/gpl-3-0" style="background:none">
     <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" style="height: 22px;" />
 </a>
 <a target="_blank" href="https://discord.gg/BZQWQnAMbY" style="background:none">
-    <img src="https://img.shields.io/badge/discord-join-rf44.svg?labelColor=191937&color=6F6FF7&logo=discord" style="height: 22px;" />
+    <img src="https://img.shields.io/badge/discord-加入討論-rf44.svg?labelColor=191937&color=6F6FF7&logo=discord" style="height: 22px;" />
 </a>
 <a target="_blank" href="http://makeapullrequest.com" style="background:none">
-    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat" style="height: 22px;" />
+    <img src="https://img.shields.io/badge/PRs-歡迎提交-brightgreen.svg?style=flat" style="height: 22px;" />
 </a>
-<!-- <a target="_blank" href="https://github.com/pylint-dev/pylint" style="background:none">
+<a target="_blank" href="https://github.com/pylint-dev/pylint" style="background:none">
     <img src="https://img.shields.io/badge/代碼檢查-pylint-yellowgreen" style="height: 22px;" />
 </a>
 <a target="_blank" href="https://github.com/psf/black" style="background:none">
     <img src="https://img.shields.io/badge/代碼風格-black-000000.svg" style="height: 22px;" />
-</a> -->
+</a>
 <!-- <a target="_blank" href="link_to_docs, tbd" style="background:none">
-    <img src="https://img.shields.io/badge/文件-%23BE1B55" style="height: 22px;" />
+    <img src="https://img.shields.io/badge/文檔-%23BE1B55" style="height: 22px;" />
 </a> -->  
 
-![Python 標章][python_badge]
-![Windows 標章][windows_badge]
+![Python badge][Python badge]
+![Windows badge][Windows badge]
 
 </div>
 
 > [!TIP]
-> 若想建議新功能、回報錯誤或取得使用幫助，請加入 [Discord 伺服器discordDiscord]。
+> 如需建議新功能、報告錯誤或獲取腳本使用幫助，請加入 [Discord 伺服器][Discord]。
 
 
-## 快速入門
-### 必要條件
-下載並安裝 **[Python 3.12.*][python]**。  
+## 快速開始  
+### 環境準備
+下載並安裝 **[Python 3.12][Python]**。  
 
-> [!IMPORTANT]  
-> 安裝時請務必勾選 **「將Python加入PATH」** 選項。  
+> [!IMPORTANT] 
+> 安裝時請務必勾選 "將 Python 加入環境變數"
 
-> [!WARNING]  
-> 不支援 Python 3.13 及以上版本。
+> [!WARNING] 
+> 不支持 Python 3.13 及以上版本。
+
 ### 安裝步驟
-請參閱 **[安裝指南][installation]**。
-## 使用方式
-### 開始前注意事項...
-- 執行腳本前，請先將角色移動至釣點
-- 路亞/海釣/手竿/維基模式：手持要使用的釣竿。
-- 底釣模式：
-    - 將釣組添加至快捷欄位。
-    - 拋竿後將釣竿放置在附近，以便腳本可透過快捷鍵（1 ~ 3）操作。
-> [!NOTE]
-> 目前僅底釣模式支援多竿操作。
-
-### 開始執行！
-1. 開啟 cmd/PowerShell
-2. 進入專案目錄並執行腳本（按 `CTRL-C` 退出）：
+1. 打開命令提示符 (cmd) 或 PowerShell
+2. 克隆倉庫並進入項目目錄:
 ```
-cd "專案目錄路徑"
+git clone https://github.com/dereklee0310/RussianFishing4Script.git
+cd RussianFishing4Script
+```
+> [!TIP]
+> 若未安裝 git，可直接 **[下載倉庫壓縮包][Download]** 並解壓縮
+> 接著在 cmd 或 PowerShell 中執行下列命令以進入項目目錄:
+> ```
+> cd "path\to\the\project"
+> ```
+> `path\to\the\project` 看起來會像這樣 `...\...\RussianFishing4Script-main`
+
+> [!WARNING] 
+> 項目路徑請勿包含非英文字符。
+
+### 依賴安裝
+運行安裝腳本以安裝依賴包並生成默認配置文件:
+```
+.\setup.bat
+```
+
+> [!TIP] 
+> 若已安裝 Python 其他版本，建議創建虛擬環境以避免依賴衝突。
+
+### 遊戲設置
+- 在 Windows 滑鼠設置中啟用 **[點擊鎖定][Clicklock]**，並將鎖定時間設為"長"。
+- 確保遊戲語言與 `config.yaml` 中的設置一致(默認為 `EN`)。
+- 將遊戲界面縮放設為 `1x`。
+- 遊戲顯示模式設為 `窗口模式` 或 `無邊界窗口`。
+- 確保魚線已完全纏繞，或使用彩虹線並添加 `-R` 參數 (請參閱 **[配置指南][Configuration guide]**)。
+- 如需使用 `-r` 或 `-c` 參數，請將茶、胡蘿蔔和咖啡加入 **[快捷食物欄][Favorite food]**。
+- 若需自動更換釣具，請將相關物品加入 **[快捷釣具欄][Favorite lure]**。
+
+## 使用方法
+### 開始前準備...
+- 運行腳本前，請先將角色移動至釣點。
+- 路亞/海釣/浮子/維基釣法: 手持對應魚竿。
+- 底釣模式: 
+    - 將釣組添加至快捷欄(1 ~ 3 號位)。
+    - 拋竿後將釣組放置在角色附近，以便腳本通過快捷鍵操作。
+> [!NOTE]
+> 目前僅底釣模式支持多竿操作。
+
+### 運行腳本！
+使用默認配置運行腳本: 
+```
 python tools\main.py
 ```
-> [!TIP]
-> `專案目錄路徑` 是克隆或解壓縮專案後存放檔案的目錄。  
-> ![路徑示意][path]
+高級用法請參閱 **[配置指南][Configuration guide]**。
+> [!IMPORTANT]
+> 若在新終端窗口中運行，請先切換至項目目錄: 
+> ```
+> cd "你的項目路徑\RussianFishing4Script"
+> ```
 
-> [!TIP]
-> 進階設定和使用方式請參閱 **[設定指南][configuration]**。
+> [!NOTE]
+> 魚護滿後腳本會自動停止，手動停止請在終端中輸入 `Ctrl-C`。 
 
 ## 工具集
-### 製作物品
-執行前選取材料，按 `Ctrl-C` 退出。
+### 自動製作
+**持續製作直至材料耗盡 (按 `Ctrl-C` 退出):**
 ```
 python tools\craft.py
 ```
-### 自動挖餌
-按 `Ctrl-C` 退出。
+**製作 10 個物品:**
+```
+python tools\craft.py -n 10
+```
+**丟棄已製作的地面餌料:**
+```
+python tools\craft.py -d
+```
+> [!IMPORTANT]
+> 運行前請先選中所需材料。
+### 自動收餌
+**持續收餌(按 `Ctrl-C` 退出):**
 ```
 python tools\harvest.py
 ```
-### 自動前進
-按 `W` 暫停，按 `S` 退出。
+**收餌時自動補充飢餓和舒適度:**
+```
+python tools\harvest.py -r
+```
+**等待時打開控制面板(降低功耗):**
+```
+python tools\harvest.py -s
+```
+### 自動移動
+**啟用自動前進(按 `W` 暫停，`S` 退出):**
 ```
 python tools\move.py
 ```
-### 自動調整摩擦
-按 `G` 重置，按 `H` 退出。
+**按住 Shift 移動:**
+```
+python tools\move.py -s
+```
+
+### 摩擦剎車自動化
+**自動控制摩擦剎車(按 `G` 重置，`H` 退出):**
 ```
 python tools\auto_friction_brake.py
 ```
-### 計算釣組數值與摩擦
+
+### 釣具數值計算
+**根據磨損顯示捲線器的真實阻力與前導線實際負載:**
 ```
 python tools\calculate.py
 ```
 
-## 疑難排解
+## 配置說明
+詳見 **[配置指南][Configuration guide]**。
+
+## 故障排除
 <details>
 <summary>如何停止腳本？</summary>
 
-- 在終端機中輸入 `CTRL-C`。 
+- 在終端中輸入 `Ctrl-C`。 
 </details>
 <!-- ------------------------------- 分隔線 -------------------------------- -->
 <details>
 <summary>無法停止腳本？</summary>
 
-- 可能按鍵被卡住（如 `CTRL-C`、`SHIFT`、滑鼠按鍵等），  
-  重新按壓卡住的按鍵後，再輸入 `CTRL-C`。
+- 可能按鍵被鎖定(如 `Ctrl`、`Shift`、滑鼠按鍵等)，  
+  再次按下對應按鍵解鎖後，輸入 `Ctrl-C` 即可。
 </details>
 <!-- ------------------------------- 分隔線 -------------------------------- -->
 <details>
-<summary>拋竿卡在128%？</summary>
+<summary>卡在 128% 拋竿？</summary>
 
-- 確認遊戲語言與腳本語言設定一致。
-- 確保線軸已纏滿釣線，或裝備彩虹線並使用 `-R` 參數。 
+- 檢查遊戲語言與腳本語言設置是否一致
+- 確保魚線已完全纏繞，或使用彩虹線並添加 `-R` 參數
 </details>
 
 <!-- ------------------------------- 分隔線 -------------------------------- -->
 <details>
-<summary>收線完成後未抬竿？</summary>
+<summary>收線完成後未提竿？</summary>
 
-- 確保線軸已纏滿釣線，或裝備彩虹線並使用 `-R` 參數。 
-- 調整遊戲視窗大小。
-- 降低 `config.yaml` 中的 `SPOOL_CONFIDENCE` 數值。
-- 遠離光源或關閉船燈。
+- 確保魚線已完全纏繞，或使用彩虹線並添加 `-R` 參數
+- 調整遊戲窗口大小
+- 降低 `config.yaml` 中的 `SPOOL_CONFIDENCE` 數值
+- 遠離光源或關閉船燈
 </details>
 <!-- ------------------------------- 分隔線 -------------------------------- -->
 <details>
-<summary>腳本執行但無反應？</summary>
+<summary>腳本運行但無反應？</summary>
 
-- 以系統管理員身份開啟 cmd/Powershell 並重新執行。
+- 以管理員身份打開新終端窗口並重新運行
 </details>
 <!-- ------------------------------- 分隔線 -------------------------------- -->
 
 ## 更新日誌
-詳見 **[更新日誌][changelog]**。
+詳見 **[更新日誌][Changelog]**。
 
-## 授權條款
-**[GNU General Public License version 3][license]**
+## 許可協議
+**[GNU General Public License version 3][License]**
 
-## 貢獻指南
-歡迎提交錯誤報告、功能建議或任何形式的貢獻。
+## 參與貢獻
+歡迎提交代碼、報告錯誤或提出新功能建議。
 
-## 聯絡作者
+## 聯繫作者
 dereklee0310@gmail.com 
 
-[readme]: /README.md
+[RF4S logo]: /static/readme/RF4S.png
+[Python badge]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white
+[Windows badge]: https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white
 
-[rf4s_logo]: /static/readme/RF4S.png
-[python_badge]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white
-[windows_badge]: https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white
-
-[discord]: https://discord.gg/BZQWQnAMbY
-[python]: https://www.python.org/downloads/
-[installation]: /docs/zh-TW/INSTALLATION.md
-[configuration]: /docs/zh-TW/CONFIGURATION.md
-[changelog]: /docs/zh-TW/CHANGELOG.md
-[path]: /static/readme/path.png
-[license]: /LICENSE
+[README]: /README.md
+[Discord]: https://discord.gg/BZQWQnAMbY
+[Python]: https://www.python.org/downloads/
+[Download]: https://github.com/dereklee0310/RussianFishing4Script/archive/refs/
 
 
 # === rf4s\exceptions.py ===
@@ -1313,6 +1234,10 @@ class LineAtEndError(Exception):
     """Fishing line is at the end during retrieval."""
 
 
+class FishGotAwayError(Exception):
+    """A hooked fish got away during pulling or retrieving stage."""
+
+
 class LineSnaggedError(Exception):
     """Fishing line is snagged."""
 
@@ -1323,18 +1248,6 @@ class ItemNotFoundError(Exception):
 
 class LureBrokenError(Exception):
     """Lure is broken."""
-
-
-class TackleBrokenError(Exception):
-    """Tackle is broken."""
-
-
-class DisconnectedError(Exception):
-    """Disconnected from the game."""
-
-
-class TicketExpiredError(Exception):
-    """Ticket expired."""
 
 
 
@@ -1348,19 +1261,25 @@ automating various fishing techniques.
 .. moduleauthor:: Derek Lee <dereklee0310@gmail.com>
 """
 
+import json
 import logging
 import os
 import random
+import smtplib
 import sys
-from contextlib import contextmanager
 from datetime import datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from multiprocessing import Lock
 
 # from email.mime.image import MIMEImage
 from pathlib import Path
 from time import sleep
+from urllib import parse, request
 
 import pyautogui as pag
+from matplotlib import pyplot as plt
+from matplotlib.ticker import MaxNLocator
 from playsound import playsound
 from pynput import keyboard
 from rich import box, print
@@ -1369,16 +1288,9 @@ from rich.table import Table
 from rf4s import exceptions, utils
 from rf4s.component.friction_brake import FrictionBrake
 from rf4s.component.tackle import Tackle
-from rf4s.controller.detection import Detection, TagColor
-from rf4s.controller.notification import (
-    DiscordColor,
-    DiscordNotification,
-    EmailNotification,
-    MiaotixingNotification,
-)
+from rf4s.controller.detection import Detection
 from rf4s.controller.timer import Timer
 from rf4s.controller.window import Window
-from rf4s.result.result import RF4SResult
 
 logger = logging.getLogger("rich")
 random.seed(datetime.now().timestamp())
@@ -1391,6 +1303,7 @@ ANIMATION_DELAY = 1
 TICKET_EXPIRE_DELAY = 16
 DISCONNECTED_DELAY = 8
 WEAR_TEXT_UPDATE_DELAY = 2
+BOUND = 2
 PUT_DOWN_DELAY = 4
 
 SCREENSHOT_DELAY = 2
@@ -1414,6 +1327,10 @@ class Player:
     :param window: Window object for managing the game window.
     :type window: Window
     """
+
+    # pylint: disable=too-many-instance-attributes, disable=no-member
+    # there are too many counters...
+    # setting node's attributes will be merged on the fly
 
     def __init__(self, cfg, window: Window):
         """Initialize monitor, timer, and some trivial counters.
@@ -1443,14 +1360,24 @@ class Player:
             cfg, self.friction_brake_lock, self.detection
         )
 
-        self.cur_coffee = 0
+        self.results = None
+
+        self.cast_miss_count = 0
+        self.keep_fish_count = 0
+        self.marked_count = 0
+        self.unmarked_count = 0
+
+        self.tea_count = 0
+        self.carrot_count = 0
+        self.alcohol_count = 0
+        self.cur_coffee_count = 0
+        self.total_coffee_count = 0
+        self.harvest_count = 0
+
         self.have_new_lure = True
         self.have_new_groundbait = True
         self.have_new_dry_mix = True
         self.have_new_pva = True
-        self.result = RF4SResult()
-
-        self.clicklock_enabled = False
 
     def start_fishing(self) -> None:
         """Start the main fishing loop with the specified fishing strategy."""
@@ -1483,18 +1410,7 @@ class Player:
         while True:
             if not skip_cast:
                 self._refill_stats()
-                self._harvest_baits(pickup=True)
-                self.reset_tackle()
-                self._change_tackle_lure()
-                self._cast_tackle()
-            skip_cast = False
-
-            if self.cfg.SELECTED.TYPE != "normal":
-                utils.hold_mouse_button(self.cfg.SELECTED.TIGHTEN_DURATION)
-                getattr(self, f"retrieve_with_{self.cfg.SELECTED.TYPE}")()
-            self.retrieve_line()
-
-            if self.d
+                self._harvest_baits(
 
 
 # === rf4s\utils.py ===
@@ -1513,8 +1429,8 @@ from time import sleep
 
 import pyautogui as pag
 from pyscreeze import Box
+from rich import print
 from rich.console import Console
-from rich.logging import RichHandler
 from rich.text import Text
 
 # BASE_DELAY + LOOP_DELAY >= 2.2 to trigger clicklock
@@ -1604,50 +1520,31 @@ def get_box_center(box: Box) -> tuple[int, int]:
     return int(box.left + box.width // 2), int(box.top + box.height // 2)
 
 
-def create_rich_logger() -> RichHandler:
-    """Create a default RichHandler for logging.
-
-    :return: Logging handler from rich.
-    :rtype: RichHandler
-    """
-    # Ignore %(name)s because it's too verbose
-    # https://rich.readthedocs.io/en/latest/logging.html
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-        handlers=[RichHandler(rich_tracebacks=True)],
-    )
-    return logging.getLogger("rich")
-
-
 # ---------------------------------------------------------------------------- #
 #                                  decorators                                  #
 # ---------------------------------------------------------------------------- #
 
 
-# def toggle_clicklock(func):
-#     """Toggle clicklock before and after calling the function."""
+def toggle_clicklock(func):
+    """Toggle clicklock before and after calling the function."""
 
-#     def wrapper(self, *args, **kwargs):
-#         # ELECTRO must be enabled, always use electric mode if GEAR_RATIO is disabled
-#         # otherwise, only use electric mode when it's the first time
-#         if self.cfg.ARGS.ELECTRO and (
-#             not self.cfg.ARGS.GEAR_RATIO or (not args or args[0])
-#         ):
-#             pag.click(clicks=2, interval=0.1)
-#         else:
-#             pag.mouseDown()
-#         sleep(BASE_DELAY + LOOP_DELAY)
-#         try:
-#             func(self, *args, **kwargs)
-#         finally:
-#             if self.cfg.ARGS.ELECTRO:
-#                 pag.click(clicks=2, interval=0.1)
-#             else:
-#                 pag.click()
+    def wrapper(self, *args, **kwargs):
+        # ELECTRO must be enabled, always use electric mode if GEAR_RATIO is disabled
+        # otherwise, only use electric mode when it's the first time
+        if self.cfg.ARGS.ELECTRO and (not self.cfg.ARGS.GEAR_RATIO or (not args or args[0])):
+            pag.click(clicks=2, interval=0.1)
+        else:
+            pag.mouseDown()
+        sleep(BASE_DELAY + LOOP_DELAY)
+        try:
+            func(self, *args, **kwargs)
+        finally:
+            if self.cfg.ARGS.ELECTRO:
+                pag.click(clicks=2, interval=0.1)
+            else:
+                pag.click()
 
-#     return wrapper
+    return wrapper
 
 
 def toggle_right_mouse_button(func):
@@ -1672,7 +1569,29 @@ def press_before_and_after(key):
                 func(*args, **kwargs)
             finally:
                 pag.press(key)
+                sleep(ANIMATION_DELAY)
 
+        return args_wrapper
+
+    return func_wrapper
+
+
+def release_keys_after(arrow_keys: bool = False):
+    """Release keys that might have been holding down
+
+    :param arrow_keys: whether to toggle arrow keys, defaults to False
+    :type arrow_keys: bool, optional
+    """
+
+    def release_keys(arrow_keys):
+        pag.keyUp("ctrl")
+        pag.keyUp("shift")
+        if arrow_keys:
+            pag.keyUp("w")
+            pag.keyUp("a")
+            pag.keyUp("d")
+
+    def func_wrapper(func):  # Capture arrow_keys as 
 
 
 # === rf4s\__init__.py ===
@@ -1690,86 +1609,46 @@ Provides core functionality for:
 .. moduleauthor:: Derek Lee <dereklee0310@gmail.com>
 """
 
-import os
-import signal
-import sys
-from abc import ABC, abstractmethod
 from pathlib import Path
 
-from pynput import keyboard
 from rich import print
 from rich.table import Table
 from yacs.config import CfgNode as CN
 
 from rf4s.config import config
-from rf4s.controller.detection import Detection
 from rf4s.controller.window import Window
-from rf4s.result.result import Result
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
-class App(ABC):
-    """A base application class.
+class App:
+    """Main application class providing configuration setup, window management,
+    and result display functionality.
+
+    This class serves as a base for specialized tools. Subclasses must implement
+    `_parse_args()` and `_start()` methods.
 
     Attributes:
-        cfg (yacs.config.CfgNode): Default + user's configuration file
-        window (Window): Window controller
+        cfg (yacs.config.CfgNode): Merged configuration from defaults, config file,
+            CLI arguments, and runtime options (frozen after initialization).
+        window (rf4s.controller.window.Window): Window management controller.
     """
 
     def __init__(self):
-        """Initialize a mutable cfg node for further modification."""
+        """Initialize application configuration and window controller.
+
+        Configuration is built from:
+        1. Default configuration
+        2. config.yaml file
+        3. Command-line arguments (via subclass implementation)
+        4. Runtime options
+
+        Raises:
+            NotImplementedError: If subclass does not implement `_parse_args()`
+        """
         self.cfg = config.setup_cfg()
         self.cfg.merge_from_file(ROOT / "config.yaml")
-        self.window = Window()
-
-    def _on_release(self, key: keyboard.KeyCode) -> None:
-        """Monitor user's keystrokes and convert a key press to a CTRL_C_EVENT.
-
-        :param key: The key that was released.
-        :type key: keyboard.KeyCode
-
-        Exits the application when the configured quit key is pressed.
-        """
-        # Trigger CTRL_C_EVENT, which will be caught in start() to simulate pressing
-        # CTRL-C to terminate the script.
-        if key == keyboard.KeyCode.from_char(self.cfg.KEY.QUIT):
-            os.kill(os.getpid(), signal.CTRL_C_EVENT)
-            sys.exit()
-
-    @abstractmethod
-    def _start(self):
-        raise NotImplementedError("_start() must be implemented in subclass")
-
-    @abstractmethod
-    def start(self):
-        raise NotImplementedError("start() must be implemented in subclass")
-
-    @abstractmethod
-    def create_parser(self):
-        raise NotImplementedError("create_parser() must be implemented in subclass")
-
-    @abstractmethod
-    def display_result(self) -> None:
-        raise NotImplementedError("display_result() must be implemented in subclass")
-
-
-class ToolApp(App):
-    """General application class for other tools.
-
-    Attributes:
-        detection (Detection): Detection controller
-    """
-
-    def __init__(self):
-        """Set up an immutable cfg node for further modification.
-
-        1. Parse command-line arguments and merge them with the existing cfg node.
-        2. Create a Window instance and a Detection instance.
-        3. Create an empty dictionary for result
-        """
-        super().__init__()
-        args = self.create_parser().parse_args()
+        args = self._parse_args()
         args_cfg = CN({"ARGS": config.dict_to_cfg(vars(args))})
         self.cfg.merge_from_other_cfg(args_cfg)
         self.cfg.merge_from_list(args.opts)
@@ -1779,38 +1658,46 @@ class ToolApp(App):
         self.cfg.merge_from_other_cfg(dummy)
         self.cfg.freeze()
 
-        self.detection = Detection(self.cfg, self.window)
-        self.result = Result()  # This will be used in display_result()
+        self.window = Window()
 
-    def display_result(self) -> None:
-        """Display the running result in a table format."""
-        result_dict = self.result.as_dict()
-        if not result_dict:
-            return
+    def _parse_args(self):
+        raise NotImplementedError("parse_args method must be implemented in subclass")
 
-        table = Table("Result", title="Running Result", show_header=False)
-        for name, value in self.result.as_dict().items():
-            table.add_row(name, str(value))
-        print(table)
+    def _start(self):
+        raise NotImplementedError("_start method must be implemented in subclass")
 
-    def start(self) -> None:
-        """Wrapper method that handle window activation and result display."""
-        if self.cfg.KEY.QUIT != "CTRL-C":
-            listener = keyboard.Listener(on_release=self._on_release)
-            listener.start()
+    def start(self, results: tuple[tuple[str, str]] = ()) -> None:
+        """Wrapper method for _start() that handle window activation and result display.
 
+        :param results: (field name, attribute name) pairs
+        :type results: tuple[tuple[str, str]], optional
+        """
         self.window.activate_game_window()
         try:
             self._start()
         except KeyboardInterrupt:
             pass
-        self.display_result()
+        if results:
+            self._print_results(results)
         self.window.activate_script_window()
 
+    def _print_results(self, results: tuple[tuple[str, str]]) -> None:
+        """Display the running results in a table format.
 
+        :param results: (field name, attribute name) pairs
+        :type results: tuple[tuple[str, str]]
+        """
+        table = Table(
+            "Results",
+            title="Running Results",
+            show_header=False,
+            # min_width=20,
+        )
+        table.title = "Running Results"
+        for field_name, attribute_name in results:
+            table.add_row(field_name, str(getattr(self, attribute_name)))
+        print(table)
 
-# === rf4s\app\__pycache__\app.cpython-312.pyc ===
-Это кэш Python (pyc-файл)
 
 
 # === rf4s\component\friction_brake.py ===
@@ -1954,6 +1841,8 @@ common tasks like clicklock and key releases.
 .. moduleauthor:: Derek Lee <dereklee0310@gmail.com>
 """
 
+# pylint: disable=c-extension-no-member
+
 import logging
 import random
 from time import sleep
@@ -1962,7 +1851,6 @@ from typing import Literal
 import pyautogui as pag
 import win32api
 import win32con
-from pyscreeze import Box
 
 from rf4s import exceptions, utils
 from rf4s.controller.detection import Detection
@@ -2035,14 +1923,8 @@ class Tackle:
 
         return wrapper
 
-    def is_disconnected_or_ticketed_expired(self) -> None:
-        """Check if the game disconnected or the boat ticket expired."""
-        if self.detection.is_disconnected():
-            raise exceptions.DisconnectedError
-        if self.detection.is_ticket_expired():
-            raise exceptions.TicketExpiredError
-
     @_check_status
+    @utils.toggle_clicklock
     def reset(self) -> None:
         """Reset the tackle until ready and detect unexpected events.
 
@@ -2067,11 +1949,8 @@ class Tackle:
                 raise exceptions.LineSnaggedError
             if self.detection.is_lure_broken():
                 raise exceptions.LureBrokenError
-            if self.detection.is_tackle_broken():
-                raise exceptions.TackleBrokenError
             i = utils.sleep_and_decrease(i, LOOP_DELAY)
 
-        self.is_disconnected_or_ticketed_expired()
         raise TimeoutError
 
     @_check_status
@@ -2093,10 +1972,30 @@ class Tackle:
             case _:
                 # -1 for backward compatibility
                 duration = CAST_SCALE * (self.cfg.SELECTED.CAST_POWER_LEVEL - 1)
-                utils.hold_mouse_but
+                utils.hold_mouse_button(duration)
+
+        sleep(self.cfg.SELECTED.CAST_DELAY)
+        if lock:
+            pag.click()
+
+    def sink(self) -> None:
+        """Sink the lure until an event happens, designed for marine and wakey rig."""
+        logger.info("Sinking lure")
+        i = self.cfg.SELECTED.SINK_TIMEOUT
+        while i > 0:
+            i = utils.sleep_and_decrease(i, LOOP_DELAY)
+            if self.detection.is_moving_in_bottom_layer()
+
+
+# === rf4s\component\__pycache__\friction_brake.cpython-311.pyc ===
+Это кэш Python (pyc-файл)
 
 
 # === rf4s\component\__pycache__\friction_brake.cpython-312.pyc ===
+Это кэш Python (pyc-файл)
+
+
+# === rf4s\component\__pycache__\tackle.cpython-311.pyc ===
 Это кэш Python (pyc-файл)
 
 
@@ -2196,7 +2095,7 @@ def to_list(profile: dict) -> list:
 
 
 # === rf4s\config\config.yaml ===
-VERSION: "0.5.0"
+VERSION: "0.4.2"
 
 SCRIPT:
   LANGUAGE: "en"
@@ -2210,13 +2109,6 @@ SCRIPT:
   SPOD_ROD_RECAST_DELAY: 1800
   LURE_CHANGE_DELAY: 1800
   ALARM_SOUND: "./static/sound/guitar.wav"
-  RANDOM_CAST_PROBABILITY: 0.25
-  SCREENSHOT_TAGS:
-    - "green"
-    - "yellow"
-    - "blue"
-    - "purple"
-    - "pink"
 
 KEY:
   TEA: -1
@@ -2248,10 +2140,9 @@ FRICTION_BRAKE:
 
 KEEPNET:
   CAPACITY: 100
-  FISH_DELAY: 0.0
-  GIFT_DELAY: 4.0
+  DELAY: 0.0
   FULL_ACTION: "quit"
-  WHITELIST:
+  RELEASE_WHITELIST:
     - "mackerel"
     - "saithe"
     - "herring"
@@ -2259,19 +2150,12 @@ KEEPNET:
     - "scallop"
     - "mussel"
   BLACKLIST: []
-  TAGS:
-    - "green"
-    - "yellow"
-    - "blue"
-    - "purple"
-    - "pink"
 
 NOTIFICATION:
   EMAIL: "email@example.com"
   PASSWORD: "password"
   SMTP_SERVER: "smtp.gmail.com"
   MIAO_CODE: "example"
-  DISCORD_WEBHOOK_URL: ""
 
 PAUSE:
   DELAY: 1800
@@ -2280,7 +2164,6 @@ PAUSE:
 PROFILE:
   SPIN:
     MODE: "spin"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 5.0
     CAST_DELAY: 6.0
     TIGHTEN_DURATION: 0.0
@@ -2292,7 +2175,6 @@ PROFILE:
     TYPE: "normal"
   SPIN_WITH_PAUSE:
     MODE: "spin"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 5.0
     CAST_DELAY: 6.0
     TIGHTEN_DURATION: 1.0
@@ -2304,7 +2186,6 @@ PROFILE:
     TYPE: "pause"
   SPIN_WITH_LIFT:
     MODE: "spin"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 5.0
     CAST_DELAY: 6.0
     TIGHTEN_DURATION: 0.0
@@ -2316,16 +2197,13 @@ PROFILE:
     TYPE: "lift"
   BOTTOM:
     MODE: "bottom"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 5.0
     CAST_DELAY: 4.0
     POST_ACCELERATION: "off"
     CHECK_DELAY: 32.0
     CHECK_MISS_LIMIT: 16
-    PUT_DOWN_DELAY: 0.0
   PIRK:
     MODE: "pirk"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 1.0
     CAST_DELAY: 4.0
     SINK_TIMEOUT: 60.0
@@ -2342,7 +2220,6 @@ PROFILE:
     POST_ACCELERATION: "auto"
   PIRK_WITH_RETRIEVAL:
     MODE: "pirk"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 1.0
     CAST_DELAY: 4.0
     SINK_TIMEOUT: 60.0
@@ -2359,7 +2236,6 @@ PROFILE:
     POST_ACCELERATION: "auto"
   WAKEY_RIG:
     MODE: "pirk"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 1.0
     CAST_DELAY: 4.0
     SINK_TIMEOUT: 45.0
@@ -2376,7 +2252,6 @@ PROFILE:
     POST_ACCELERATION: "auto"
   ELEVATOR:
     MODE: "elevator"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 1.0
     CAST_DELAY: 4.0
     SINK_TIMEOUT: 60.0
@@ -2389,7 +2264,6 @@ PROFILE:
     POST_ACCELERATION: "auto"
   ELEVATOR_WITH_DROP:
     MODE: "elevator"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 1.0
     CAST_DELAY: 4.0
     SINK_TIMEOUT: 60.0
@@ -2402,7 +2276,6 @@ PROFILE:
     POST_ACCELERATION: "auto"
   TELESCOPIC:
     MODE: "telescopic"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 5.0
     CAST_DELAY: 4.0
     FLOAT_SENSITIVITY: 0.68
@@ -2412,7 +2285,6 @@ PROFILE:
     CAMERA_SHAPE: "square"
   BOLOGNESE:
     MODE: "bolognese"
-    LAUNCH_OPTIONS: ""
     CAST_POWER_LEVEL: 5.0
     CAST_DELAY: 4.0
     FLOAT_SENSITIVITY: 0.68
@@ -2430,7 +2302,7 @@ PROFILE:
 from yacs.config import CfgNode as CN
 
 _C = CN()
-_C.VERSION = "0.5.0"
+_C.VERSION = "0.4.2"
 
 # ---------------------------------------------------------------------------- #
 #                                    General                                   #
@@ -2452,11 +2324,6 @@ _C.SCRIPT.SPOD_ROD_RECAST_DELAY = 1800
 # Use spin mode and -L to enable it.
 _C.SCRIPT.LURE_CHANGE_DELAY = 1800
 _C.SCRIPT.ALARM_SOUND = "./static/sound/guitar.wav"  # Path to alarm sound file
-# Probability to add a redundant rod cast (0.0 to 1.0)
-_C.SCRIPT.RANDOM_CAST_PROBABILITY = 0.25
-# When using -s flag, only take screenshot of the fishes with tags below
-# If left empty, the script will take screenshot of every fish you caught
-_C.SCRIPT.SCREENSHOT_TAGS = ("green", "yellow", "blue", "purple", "pink")
 
 # ---------------------------------------------------------------------------- #
 #                                  Key Binding                                 #
@@ -2506,12 +2373,11 @@ _C.FRICTION_BRAKE.SENSITIVITY = "medium"  # Sensitivity of friction brake detect
 # ---------------------------------------------------------------------------- #
 _C.KEEPNET = CN()
 _C.KEEPNET.CAPACITY = 100
-_C.KEEPNET.FISH_DELAY = 0.0  # Delay before keeping the fish (for screenshots)
-_C.KEEPNET.GIFT_DELAY = 4.0  # Delay before keeping the gift (for screenshots)
+_C.KEEPNET.DELAY = 0.0  # Delay before keeping the fish (for screenshots)
 _C.KEEPNET.FULL_ACTION = "quit"  # Action when keepnet is full. Options: quit, alarm
-# Whitelist for untagged fish releasing when using -t flag
+# Whitelist for unmarked fish releasing when using -m flag
 # Options: mackerel, saithe, herring, squid, scallop, mussel, perch, shorthorn_sculpin
-_C.KEEPNET.WHITELIST = (
+_C.KEEPNET.RELEASE_WHITELIST = (
     "mackerel",
     "saithe",
     "herring",
@@ -2521,18 +2387,38 @@ _C.KEEPNET.WHITELIST = (
 )
 # Fish in the blacklist will always be released
 # Options: mackerel, saithe, herring, squid, scallop, mussel, perch, shorthorn_sculpin
-_C.K
+_C.KEEPNET.BLACKLIST = ()
+
+# ---------------------------------------------------------------------------- #
+#                                 Notification                                 #
+# ---------------------------------------------------------------------------- #
+_C.NOTIFICATION = CN()
+_C.NOTIFICATION.EMAIL = "email@example.com"
+_C.NOTIFICATION.PASSWORD = "password"
+_C.NOTIFICATION.SMTP_S
 
 
 # === rf4s\config\__init__.py ===
 
 
 
+# === rf4s\config\__pycache__\config.cpython-311.pyc ===
+Это кэш Python (pyc-файл)
+
+
 # === rf4s\config\__pycache__\config.cpython-312.pyc ===
 Это кэш Python (pyc-файл)
 
 
+# === rf4s\config\__pycache__\defaults.cpython-311.pyc ===
+Это кэш Python (pyc-файл)
+
+
 # === rf4s\config\__pycache__\defaults.cpython-312.pyc ===
+Это кэш Python (pyc-файл)
+
+
+# === rf4s\config\__pycache__\__init__.cpython-311.pyc ===
 Это кэш Python (pyc-файл)
 
 
@@ -2549,14 +2435,12 @@ and pixel color analysis. It is used for automating tasks in Russian Fishing 4.
 .. moduleauthor:: Derek Lee <dereklee0310@gmail.com>
 """
 
+# pylint: disable=missing-function-docstring
+
 import time
-from enum import Enum
-from functools import partial
 from pathlib import Path
 from typing import Generator
 
-import cv2
-import numpy as np
 import pyautogui as pag
 from PIL import Image
 from pyscreeze import Box
@@ -2578,15 +2462,6 @@ SIDE_LENGTH_HALF = 80
 ORANGE_REEL = (227, 149, 23)
 
 ROOT = Path(__file__).resolve().parents[2]
-
-
-class TagColor(Enum):
-    GREEN = "green_tag"
-    YELLOW = "yellow_tag"
-    PINK = "pink_tag"
-    BLUE = "blue_tag"
-    PURPLE = "purple_tag"
-
 
 COORD_OFFSETS = {
     "1600x900": {
@@ -2654,6 +2529,8 @@ class Detection:
         bait_icon_reference_img (Image): Reference image for bait icon detection.
     """
 
+    # pylint: disable=too-many-public-methods
+
     def __init__(self, cfg, window: Window):
         """Initialize the Detection class with configuration and window settings.
 
@@ -2666,15 +2543,8 @@ class Detection:
         self.window = window
         self.image_dir = ROOT / "static" / cfg.SCRIPT.LANGUAGE
 
-        if window.is_size_supported():
+        if window.supported:
             self._set_absolute_coords()
-            self.is_fish_hooked = self.is_fish_hooked_pixel
-        else:
-            self.is_fish_hooked = partial(
-                self._get_image_box,
-                image="fish_icon",
-                confidence="0.9",
-            )
 
         self.bait_icon_reference_img = Image.open(self.image_dir / "bait_icon.png")
 
@@ -2687,159 +2557,15 @@ class Detection:
         :type image: str
         :param confidence: Matching confidence for locateOnScreen.
         :type confidence: float
-        :param 
-
-
-# === rf4s\controller\notification.py ===
-import json
-import logging
-import smtplib
-from datetime import datetime, timezone
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from enum import Enum
-from urllib import parse, request
-
-from discord_webhook import DiscordEmbed, DiscordWebhook
-from rich import box
-from rich.console import Console
-from rich.table import Table
-
-logger = logging.getLogger("rich")
-
-ICON_URL = "https://i.ibb.co/RpLYcdkm/icon.png"
-
-# Name                             | Int value | Hex code
-# ---------------------------------|-----------|----------
-# `BLURPLE`                        | 5793266   | `#5865F2`
-# `GREEN`                          | 5763719   | `#57F287`
-# `YELLOW`                         | 16705372  | `#FEE75C`
-# `FUSCHIA`                        | 15418782  | `#EB459E`
-# `RED`                            | 15548997  | `#ED4245`
-# `WHITE`                          | 16777215  | `#FFFFFF`
-# `BLACK`                          | 2303786   | `#23272A`
-
-
-class DiscordColor(Enum):
-    BLURPLE = 5793266
-    GREEN = 5763719
-    YELLOW = 16705372
-    FUSCHIA = 15418782
-    RED = 15548997
-    WHITE = 16777215
-    BLACK = 2303786
-
-
-class DiscordNotification:
-    def __init__(self, cfg, result):
-        self.cfg = cfg
-        self.result = result
-
-    def build_raw_table(self) -> str:
-        console = Console(width=100, force_terminal=True, color_system=None)
-        table = Table("Field", "Value", box=box.DOUBLE, show_header=False)
-
-        for key, value in self.result.items():
-            table.add_row(key, str(value))
-
-        with console.capture() as capture:
-            console.print(table)
-
-        return capture.get().strip()
-
-    def send(self, color: DiscordColor):
-        logger.info("Sending Discord notification")
-        raw_table = self.build_raw_table()
-        webhook = DiscordWebhook(
-            url=self.cfg.NOTIFICATION.DISCORD_WEBHOOK_URL,
-            username="RF4S",
-            avatar_url=ICON_URL,
-        )
-
-        embed = DiscordEmbed(
-            title="Running Result",
-            color=color,
-            timestamp=datetime.now(timezone.utc).isoformat(),
-            footer={"text": "RF4S: Russian Fishing 4 Script", "icon_url": ICON_URL},
-        )
-        embed.description = f"```\n{raw_table}\n```"  # Wrap in code block
-
-        webhook.add_embed(embed)
-        response = webhook.execute()
-
-        if response.status_code == 200:
-            logger.info("Result successfully sent to Discord")
-        else:
-            logger.error(f"Failed to send result to Discord: {response.text}")
-
-
-class EmailNotification:
-    def __init__(self, cfg, result):
-        self.cfg = cfg
-        self.result = result
-
-    def send(self) -> None:
-        """Send a notification email to the user's email address."""
-        logger.info("Sending email notification")
-
-        msg = MIMEMultipart()
-        msg["Subject"] = "RF4S: Notice of Program Termination"
-        msg["From"] = self.cfg.NOTIFICATION.EMAIL
-        recipients = [self.cfg.NOTIFICATION.EMAIL]
-        msg["To"] = ", ".join(recipients)
-
-        text = ""
-        for k, v in self.result.items():
-            text += f"{k}: {v}\n"
-        msg.attach(MIMEText(text))
-
-        try:
-            with smtplib.SMTP_SSL(self.cfg.NOTIFICATION.SMTP_SERVER, 465) as server:
-                # smtp_server.ehlo()
-                server.login(
-                    self.cfg.NOTIFICATION.EMAIL, self.cfg.NOTIFICATION.PASSWORD
-                )
-                server.sendmail(
-                    self.cfg.NOTIFICATION.EMAIL, recipients, msg.as_string()
-                )
-            logger.info("Email sent successfully")
-        except Exception as e:
-            logger.error(f"Failed to send email: {e}")
-
-
-class MiaotixingNotification:
-    def __init__(self, cfg, result):
-        self.cfg = cfg
-        self.result = result
-
-    def send(self) -> None:
-        """Send a notification to the user's miaotixing service.
-
-        :param result: running result
-        :type result: dict
+        :param multiple: Whether to locate all matching images, defaults to False.
+        :type multiple: bool, optional
+        :return: Image box, None if not found.
+        :rtype: Box | None
         """
-        logger.info("Sending miaotixing notification")
-
-        text = ""
-        for k, v in self.result.items():
-            text += f"{k}: {v}\n"
-
-        url = "http://miaotixing.com/trigger?" + parse.urlencode(
-            {"id": self.cfg.NOTIFICATION.MIAO_CODE, "text": text, "type": "json"}
-        )
-
-        with request.urlopen(url) as page:
-            result = page.read()
-            json_object = json.loads(result)
-            if json_object["code"] == 0:
-                logger.info("Miaotixing notification sent successfully")
-            else:
-                logger.error(
-                    "Miaotixing notification with error code: %s\nDescription: %s",
-                    str(json_object["code"]),
-                    json_object["msg"],
-                )
-
+        image_path = str(self.image_dir / f"{image}.png")
+        if multiple:
+            return pag.locateAllOnScreen(image_path, confidence=confidence)
+        return pag.locateOnScreen
 
 
 # === rf4s\controller\timer.py ===
@@ -2852,13 +2578,7 @@ for logging and automation purposes in Russian Fishing 4.
 """
 
 import datetime
-import logging
 import time
-
-from matplotlib import pyplot as plt
-from matplotlib.ticker import MaxNLocator
-
-logger = logging.getLogger("rich")
 
 
 class Timer:
@@ -2882,6 +2602,9 @@ class Timer:
         last_pause (float): Timestamp of the last script pause.
     """
 
+    # pylint: disable=too-many-instance-attributes
+    # there are too many counters...
+
     def __init__(self, cfg):
         """Initialize the Timer class with configuration settings.
 
@@ -2904,14 +2627,6 @@ class Timer:
         self.last_pause = self.start_time
 
     def get_running_time(self) -> str:
-        """Calculate the execution time of the program.
-
-        :return: Formatted execution time (hh:mm:ss).
-        :rtype: str
-        """
-        return time.time() - self.start_time
-
-    def get_running_time_str(self) -> str:
         """Calculate the execution time of the program.
 
         :return: Formatted execution time (hh:mm:ss).
@@ -2987,6 +2702,16 @@ class Timer:
             self.last_alcohol_drink = cur_time
             self.last_tea_drink = cur_time  # Alcohol also refill comfort
             return True
+        return False
+
+    def is_lure_changeable(self):
+        """Check if it has been a long time since the last lure change.
+
+        :return: True if long enough, False otherwise.
+        :rtype: bool
+        """
+        cur_time = time.time()
+        if cur_time - sel
 
 
 # === rf4s\controller\window.py ===
@@ -3011,7 +2736,6 @@ import win32gui
 logger = logging.getLogger("rich")
 
 ROOT = Path(__file__).resolve().parents[2]
-ANIMATION_DELAY = 0.25
 
 
 class Window:
@@ -3021,22 +2745,34 @@ class Window:
     for the game and terminal windows.
 
     Attributes:
-        game_title (str): Title of the game window.
-        terminal_hwnd (int): Handle of the terminal window.
+        _title (str): Title of the game window.
+        _script_hwnd (int): Handle of the terminal window.
+        _game_hwnd (int): Handle of the game window.
+        box (tuple[int, int, int, int]): Coordinates and dimensions of the game window.
+        title_bar_exist (bool): Whether the game window has a title bar.
+        supported (bool): Whether the game window size is supported.
     """
 
-    def __init__(self, game_title: str = "Russian Fishing 4"):
-        """Set the hwnd of the terminal where user run the script.
+    def __init__(self, window_title: str = "Russian Fishing 4"):
+        """Initialize the Window class with the game window title.
 
-        We didn't retrieve the game window's hwnd here because we don't want to check
-        if the window is open right away. Instead, we perform the check after the
-        configuration is set.
-
-        :param game_title: Title of the game, defaults to "Russian Fishing 4".
-        :type game_title: str, optional
+        :param window_title: Title of the game window, defaults to "Russian Fishing 4".
+        :type window_title: str, optional
         """
-        self.game_title = game_title
-        self.terminal_hwnd = win32gui.GetForegroundWindow()
+        self._title = window_title
+        self._script_hwnd = self._get_cur_hwnd()
+        self._game_hwnd = self._get_game_hwnd()
+        self.box = self._get_box()
+        self.title_bar_exist = self._is_title_bar_exist()
+        self.supported = self._is_size_supported()
+
+    def _get_cur_hwnd(self) -> int:
+        """Get the handle of the terminal window.
+
+        :return: Process handle of the terminal window.
+        :rtype: int
+        """
+        return win32gui.GetForegroundWindow()
 
     def _get_game_hwnd(self) -> int:
         """Get the handle of the game window.
@@ -3044,107 +2780,95 @@ class Window:
         :return: Process handle of the game window.
         :rtype: int
         """
-        hwnd = win32gui.FindWindow(None, self.game_title)  # class name: UnityWndClass
-        if hwnd == 0:
-            logger.critical("Failed to locate the game window: %s", self.game_title)
-            sys.exit(1)
+        hwnd = win32gui.FindWindow(None, self._title)
+        # print(win32gui.GetClassName(hwnd)) # class name: UnityWndClass
+        if not hwnd:
+            logger.error("Failed to locate the game window: %s", self._title)
+            sys.exit()
         return hwnd
 
-    def is_title_bar_exist(self) -> bool:
+    def _is_title_bar_exist(self) -> bool:
         """Check if the game window is in windowed mode.
 
         :return: True if the game window has a title bar, False otherwise.
         :rtype: bool
         """
-        style = win32gui.GetWindowLong(self._get_game_hwnd(), win32con.GWL_STYLE)
+        style = win32gui.GetWindowLong(self._game_hwnd, win32con.GWL_STYLE)
         return style & win32con.WS_CAPTION
 
-    def get_box(self) -> tuple[int, int, int, int]:
+    def _get_box(self) -> tuple[int, int, int, int]:
         """Get the coordinates and dimensions of the game window.
 
         :return: Tuple containing (x, y, width, height) of the game window.
         :rtype: tuple[int, int, int, int]
         """
-        # Absolute coordinates
-        base_x, base_y, _, _ = win32gui.GetWindowRect(self._get_game_hwnd())
-        if self.is_title_bar_exist():
+        base_x, base_y, _, _ = win32gui.GetWindowRect(self._game_hwnd)
+        if self._is_title_bar_exist():
             base_x += 8
             base_y += 31
-        # Relative coordinates
-        left, top, right, bottom = win32gui.GetClientRect(self._get_game_hwnd())
-        return base_x, base_y, right - left, bottom - top
-
-    def get_base_coordinates(self) -> tuple[int, int]:
-        """Get the base coordinates of the game window.
-
-        :return: Tuple containing (x, y) of the base coordinates.
-        :rtype: tuple[int, int]
-        """
-        return self.get_box()[:2]
-
-    def get_resolution_str(self) -> tuple[int, int]:
-        """Get the resolution of the game window.
-
-        :return: Tuple containing (width, height) of the game window.
-        :rtype: tuple[int, int]
-        """
-        width, height = self.get_box()[2:]
-        return f"{width}x{height}"
+        left, top, right, bottom = win32gui.GetClientRect(self._game_hwnd)
+        width = right - left
+        height = bottom - top
+        return base_x, base_y, width, height
 
     def activate_script_window(self) -> None:
-        """Focus the terminal where user run the script."""
+        """Focus terminal."""
         pag.press("alt")
-        win32gui.SetForegroundWindow(self.terminal_hwnd)
-        sleep(ANIMATION_DELAY)
+        win32gui.SetForegroundWindow(
+            self._script_hwnd
+        )  # fullscreen mode is not supported
+        sleep(0.25)
 
     def activate_game_window(self) -> None:
         """Focus game window."""
         pag.press("alt")
-        win32gui.SetForegroundWindow(self._get_game_hwnd())
-        sleep(ANIMATION_DELAY)
+        win32gui.SetForegroundWindow(
+            self._game_hwnd
+        )  # fullscreen mode is not supported
+        sleep(0.25)
 
-    def is_size_supported(self) -> bool:
+    def _is_size_supported(self) -> bool:
         """Check if the game window size is supported.
 
-        :return: True if it's supported, False otherwise.
+        :return: True if the window size is supported, False otherwise.
         :rtype: bool
         """
-        return self.get_resolution_str() in (
-            "2560x1440",
-            "1920x1080",
-            "1600x900",
-        )
+        if self.box[2:] in ((2560, 1440), (1920, 1080), (1600, 900)):
+            return True
+        return False
 
     def save_screenshot(self, time) -> None:
         """Save a screenshot of the game window to the screenshots directory.
 
-        :param time: Timestamp for the filename.
+        :param time: Timestamp to use as the filename.
         :type time: str
         """
+        # datetime.now().strftime("%H:%M:%S")
         pag.screenshot(
+            # imageFilename=rf"../screenshots/{time}.png",
             imageFilename=ROOT / "screenshots" / f"{time}.png",
-            region=self.get_box(),
+            region=self.box,
         )
 
 
 if __name__ == "__main__":
     w = Window("Russian Fishing 4")
-    # w.activate_game_window()
-    print(w.get_box())
-    print(w.get_base_coordinates())
-    print(w.get_resolution_str())
-    print(w.is_size_supported())
+    w.activate_game_window()
 
 # SetForegroundWindow bug reference :
 # https://stackoverflow.com/questions/56857560/win32gui-setforegroundwindowhandle-not-working-in-loop
 
 
 
+# === rf4s\controller\__pycache__\detection.cpython-311.pyc ===
+Это кэш Python (pyc-файл)
+
+
 # === rf4s\controller\__pycache__\detection.cpython-312.pyc ===
 Это кэш Python (pyc-файл)
 
 
-# === rf4s\controller\__pycache__\notification.cpython-312.pyc ===
+# === rf4s\controller\__pycache__\timer.cpython-311.pyc ===
 Это кэш Python (pyc-файл)
 
 
@@ -3152,96 +2876,15 @@ if __name__ == "__main__":
 Это кэш Python (pyc-файл)
 
 
+# === rf4s\controller\__pycache__\window.cpython-311.pyc ===
+Это кэш Python (pyc-файл)
+
+
 # === rf4s\controller\__pycache__\window.cpython-312.pyc ===
 Это кэш Python (pyc-файл)
 
 
-# === rf4s\result\result.py ===
-from dataclasses import dataclass
-
-from rf4s.controller.timer import Timer
-
-
-@dataclass
-class Result:
-    """Dummy result."""
-
-    def as_dict(self) -> dict:
-        return {}
-
-
-@dataclass
-class RF4SResult:
-    tea: int = 0
-    carrot: int = 0
-    alcohol: int = 0
-    coffee: int = 0
-    bait: int = 0
-    kept: int = 0
-    total: int = 0
-    green: int = 0
-    yellow: int = 0
-    blue: int = 0
-    purple: int = 0
-    pink: int = 0
-
-    def as_dict(self, msg: str, timer: Timer) -> dict:
-        # Will be 0 if total_fish_count = 0
-        kept_ratio = f"{int(self.kept / max(1, self.total) * 100)}%"
-        bite_rate = f"{int((self.total / (timer.get_running_time() / 3600)))}/hr"
-
-        return {
-            "Stop reason": msg,
-            "Start time": timer.get_start_datetime(),
-            "End time": timer.get_cur_datetime(),
-            "Running time": timer.get_running_time_str(),
-            "Bite rate": bite_rate,
-            "Total fish": self.total,
-            "Kept fish": self.kept,
-            "Kept ratio": kept_ratio,
-            "Green tag fish": self.green,
-            "Yellow tag fish": self.yellow,
-            "Blue tag fish": self.blue,
-            "Purple tag fish": self.purple,
-            "Pink tag fish": self.pink,
-            "Tea consumed": self.tea,
-            "Carrot consumed": self.carrot,
-            "Alcohol consumed": self.alcohol,
-            "Coffee consumed": self.coffee,
-            "Bait harvested": self.bait,
-        }
-
-
-@dataclass
-class CraftResult:
-    succes: int = 0
-    fail: int = 0
-    material: int = 0
-
-    def as_dict(self) -> dict:
-        return {
-            "Successful crafts": self.succes,
-            "Failed crafts": self.fail,
-            "Materials used": self.material,
-        }
-
-
-@dataclass
-class HarvestResult:
-    tea: int = 0
-    carrot: int = 0
-    bait: int = 0
-
-    def as_dict(self) -> dict:
-        return {
-            "Tea consumed": self.tea,
-            "Carrot consumed": self.carrot,
-            "Bait harvested": self.bait,
-        }
-
-
-
-# === rf4s\result\__pycache__\result.cpython-312.pyc ===
+# === rf4s\__pycache__\exceptions.cpython-311.pyc ===
 Это кэш Python (pyc-файл)
 
 
@@ -3249,11 +2892,23 @@ class HarvestResult:
 Это кэш Python (pyc-файл)
 
 
+# === rf4s\__pycache__\player.cpython-311.pyc ===
+Это кэш Python (pyc-файл)
+
+
 # === rf4s\__pycache__\player.cpython-312.pyc ===
 Это кэш Python (pyc-файл)
 
 
+# === rf4s\__pycache__\utils.cpython-311.pyc ===
+Это кэш Python (pyc-файл)
+
+
 # === rf4s\__pycache__\utils.cpython-312.pyc ===
+Это кэш Python (pyc-файл)
+
+
+# === rf4s\__pycache__\__init__.cpython-311.pyc ===
 Это кэш Python (pyc-файл)
 
 
@@ -3274,10 +2929,6 @@ class HarvestResult:
 
 
 # === static\en\bait_icon.png ===
-Это картинка
-
-
-# === static\en\blue_tag.png ===
 Это картинка
 
 
@@ -3333,14 +2984,6 @@ class HarvestResult:
 Это картинка
 
 
-# === static\en\gift.png ===
-Это картинка
-
-
-# === static\en\green_tag.png ===
-Это картинка
-
-
 # === static\en\groundbait_icon.png ===
 Это картинка
 
@@ -3366,6 +3009,10 @@ class HarvestResult:
 
 
 # === static\en\make.png ===
+Это картинка
+
+
+# === static\en\mark.png ===
 Это картинка
 
 
@@ -3397,19 +3044,7 @@ class HarvestResult:
 Это картинка
 
 
-# === static\en\pink_tag.png ===
-Это картинка
-
-
-# === static\en\purple_tag.png ===
-Это картинка
-
-
 # === static\en\pva_icon.png ===
-Это картинка
-
-
-# === static\en\pva_stick_or_pva_stringer.png ===
 Это картинка
 
 
@@ -3477,11 +3112,11 @@ class HarvestResult:
 Это картинка
 
 
-# === static\en\yellow_tag.png ===
+# === static\en\yes.png ===
 Это картинка
 
 
-# === static\en\yes.png ===
+# === static\readme\cd.png ===
 Это картинка
 
 
@@ -3489,15 +3124,19 @@ class HarvestResult:
 Это картинка
 
 
-# === static\readme\favorite_food.png ===
+# === static\readme\favorites.png ===
 Это картинка
 
 
-# === static\readme\favorite_lure.png ===
+# === static\readme\favorites_2.png ===
 Это картинка
 
 
-# === static\readme\icon.png ===
+# === static\readme\file_integrity.png ===
+Это картинка
+
+
+# === static\readme\file_integrity_2.png ===
 Это картинка
 
 
@@ -3510,10 +3149,6 @@ class HarvestResult:
 
 
 # === static\readme\mtx3.png ===
-Это картинка
-
-
-# === static\readme\path.png ===
 Это картинка
 
 
@@ -3542,10 +3177,6 @@ class HarvestResult:
 
 
 # === static\ru\bait_icon.png ===
-Это картинка
-
-
-# === static\ru\blue_tag.png ===
 Это картинка
 
 
@@ -3601,14 +3232,6 @@ class HarvestResult:
 Это картинка
 
 
-# === static\ru\gift.png ===
-Это картинка
-
-
-# === static\ru\green_tag.png ===
-Это картинка
-
-
 # === static\ru\groundbait_icon.png ===
 Это картинка
 
@@ -3634,6 +3257,10 @@ class HarvestResult:
 
 
 # === static\ru\make.png ===
+Это картинка
+
+
+# === static\ru\mark.png ===
 Это картинка
 
 
@@ -3665,19 +3292,7 @@ class HarvestResult:
 Это картинка
 
 
-# === static\ru\pink_tag.png ===
-Это картинка
-
-
-# === static\ru\purple_tag.png ===
-Это картинка
-
-
 # === static\ru\pva_icon.png ===
-Это картинка
-
-
-# === static\ru\pva_stick_or_pva_stringer.png ===
 Это картинка
 
 
@@ -3742,10 +3357,6 @@ class HarvestResult:
 
 
 # === static\ru\wheel.png ===
-Это картинка
-
-
-# === static\ru\yellow_tag.png ===
 Это картинка
 
 
@@ -3829,10 +3440,6 @@ class HarvestResult:
 Это картинка
 
 
-# === static\zh-CN\blue_tag.png ===
-Это картинка
-
-
 # === static\zh-CN\broke.png ===
 Это картинка
 
@@ -3877,14 +3484,6 @@ class HarvestResult:
 Это картинка
 
 
-# === static\zh-CN\gift.png ===
-Это картинка
-
-
-# === static\zh-CN\green_tag.png ===
-Это картинка
-
-
 # === static\zh-CN\groundbait_icon.png ===
 Это картинка
 
@@ -3905,6 +3504,10 @@ class HarvestResult:
 Это картинка
 
 
+# === static\zh-CN\mark.png ===
+Это картинка
+
+
 # === static\zh-CN\material_slot.png ===
 Это картинка
 
@@ -3914,14 +3517,6 @@ class HarvestResult:
 
 
 # === static\zh-CN\ok.png ===
-Это картинка
-
-
-# === static\zh-CN\pink_tag.png ===
-Это картинка
-
-
-# === static\zh-CN\purple_tag.png ===
 Это картинка
 
 
@@ -3977,10 +3572,6 @@ class HarvestResult:
 Это картинка
 
 
-# === static\zh-CN\yellow_tag.png ===
-Это картинка
-
-
 # === static\zh-CN\yes.png ===
 Это картинка
 
@@ -3998,10 +3589,6 @@ class HarvestResult:
 
 
 # === static\zh-TW\bait_icon.png ===
-Это картинка
-
-
-# === static\zh-TW\blue_tag.png ===
 Это картинка
 
 
@@ -4049,14 +3636,6 @@ class HarvestResult:
 Это картинка
 
 
-# === static\zh-TW\gift.png ===
-Это картинка
-
-
-# === static\zh-TW\green_tag.png ===
-Это картинка
-
-
 # === static\zh-TW\groundbait_icon.png ===
 Это картинка
 
@@ -4085,6 +3664,10 @@ class HarvestResult:
 Это картинка
 
 
+# === static\zh-TW\mark.png ===
+Это картинка
+
+
 # === static\zh-TW\material_slot.png ===
 Это картинка
 
@@ -4098,14 +3681,6 @@ class HarvestResult:
 
 
 # === static\zh-TW\ok.png ===
-Это картинка
-
-
-# === static\zh-TW\pink_tag.png ===
-Это картинка
-
-
-# === static\zh-TW\purple_tag.png ===
 Это картинка
 
 
@@ -4173,10 +3748,6 @@ class HarvestResult:
 Это картинка
 
 
-# === static\zh-TW\yellow_tag.png ===
-Это картинка
-
-
 # === static\zh-TW\yes.png ===
 Это картинка
 
@@ -4192,22 +3763,37 @@ and resetting the friction brake.
 """
 
 import argparse
+import logging
+import shlex
 import sys
 from multiprocessing import Lock
+from pathlib import Path
 
 from pynput import keyboard
-from rich import print
+from rich.logging import RichHandler
 
 sys.path.append(".")
-from rf4s.app.app import ToolApp
+
+
+from rf4s.app.app import App
 from rf4s.component.friction_brake import FrictionBrake
 from rf4s.config.config import print_cfg
-from rf4s.utils import create_rich_logger
+from rf4s.controller.detection import Detection
 
-logger = create_rich_logger()
+EXIT = "'h'"
+RESET = "'g'"
+ROOT = Path(__file__).resolve().parents[1]
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[RichHandler(rich_tracebacks=True)],
+)
+logger = logging.getLogger("rich")
 
 
-class FrictionBrakeApp(ToolApp):
+class FrictionBrakeApp(App):
     """Main application class for automating friction brake adjustments.
 
     This class manages the configuration, detection, and execution of the friction
@@ -4215,59 +3801,62 @@ class FrictionBrakeApp(ToolApp):
 
     Attributes:
         cfg (CfgNode): Configuration node merged from YAML and CLI arguments.
+        window (Window): Game window controller instance.
+        detection (Detection): Detection instance for in-game state checks.
+        friction_brake_lock (Lock): Dummy lock for thread synchronization.
         friction_brake (FrictionBrake): Friction brake controller instance.
     """
 
     def __init__(self):
         """Initialize the application.
 
-        1. Check the game window state.
-        2. Format keybinds in cfg node.
-        3. Display cfg node.
-        4. Initialize a friction brake instance.
+        Loads configuration, parses command-line arguments, sets up the game window,
+        and initializes the friction brake controller.
         """
         super().__init__()
-        if not self.is_game_window_valid():
-            sys.exit(1)
 
-        # Format keys
+        # Format key
         self.cfg.defrost()
-        self.cfg.ARGS.QUIT_KEY = f"'{self.cfg.ARGS.QUIT_KEY}'"
+        self.cfg.ARGS.EXIT_KEY = f"'{self.cfg.ARGS.EXIT_KEY}'"
         self.cfg.ARGS.RESET_KEY = f"'{self.cfg.ARGS.RESET_KEY}'"
         self.cfg.freeze()
         print_cfg(self.cfg.ARGS)
         print_cfg(self.cfg.FRICTION_BRAKE)
 
-        self.friction_brake = FrictionBrake(self.cfg, Lock(), self.detection)
-
-    def is_game_window_valid(self) -> bool:
-        """Check if the game window mode and size are valid.
-
-        :return: True if valid, False otherwise
-        :rtype: bool
-        """
-        if self.window.is_title_bar_exist():
+        width, height = self.window.box[:2]
+        if self.window.title_bar_exist:
             logger.info("Window mode detected. Please don't move the game window")
-        if not self.window.is_size_supported():
+        if not self.window.supported:
+            logger.warning('Window mode must be "Borderless windowed" or "Window mode"')
             logger.critical(
-                'Window mode must be "Borderless windowed" or "Window mode"'
+                "Invalid window size '%s', use '2560x1440', '1920x1080' or '1600x900'",
+                f"{width}x{height}",
             )
-            logger.critical(
-                "Unsupported window size '%s', "
-                "use '2560x1440', '1920x1080' or '1600x900'",
-                self.window.get_resolution_str(),
-            )
-            return False
-        return True
+            sys.exit(1)
 
-    def create_parser(self) -> argparse.ArgumentParser:
-        """Create an argument parser for the application.
+        self.detection = Detection(self.cfg, self.window)
 
-        :return: Configured argument parser.
-        :rtype: argparse.ArgumentParser
+        self.friction_brake_lock = Lock()  # dummy lock
+        self.friction_brake = FrictionBrake(
+            self.cfg, self.friction_brake_lock, self.detection
+        )
+
+    def _parse_args(self) -> argparse.Namespace:
+        """Configure argument parser and parse command-line arguments.
+
+        :return: Parsed command-line arguments.
+        :rtype: argparse.Namespace
         """
         parser = argparse.ArgumentParser(description="Automate friction brake.")
         parser.add_argument("opts", nargs="*", help="overwrite configuration")
+        parser.add_argument(
+            "-e",
+            "--exit-key",
+            default="h",
+            type=str,
+            help="key to quit the script, h by default",
+            metavar="KEY",
+        )
         parser.add_argument(
             "-r",
             "--reset-key",
@@ -4276,24 +3865,19 @@ class FrictionBrakeApp(ToolApp):
             help="key to reset friction brake, g by default",
             metavar="KEY",
         )
-        parser.add_argument(
-            "-q",
-            "--quit-key",
-            default="h",
-            type=str,
-            help="key to quit the script, h by default",
-            metavar="KEY",
-        )
-        return parser
+        args_list = shlex.split(self.cfg.SCRIPT.LAUNCH_OPTIONS) + sys.argv[1:]
+        return parser.parse_args(args_list)
 
     def _on_release(self, key: keyboard.KeyCode) -> None:
-        """Handle exit and quit events.
+        """Handle key release events for controlling the application.
+
+        Exits the script or resets the friction brake based on the key pressed.
 
         :param key: The key that was released.
         :type key: keyboard.KeyCode
         """
         keystroke = str(key).lower()
-        if keystroke == self.cfg.ARGS.QUIT_KEY:
+        if keystroke == self.cfg.ARGS.EXIT_KEY:
             self.friction_brake.monitor_process.terminate()
             sys.exit()
         if keystroke == self.cfg.ARGS.RESET_KEY:
@@ -4305,10 +3889,6 @@ class FrictionBrakeApp(ToolApp):
         Begins the friction brake monitoring process and starts a keyboard listener
         to handle control keys.
         """
-        print(
-            f"Press {self.cfg.ARGS.RESET_KEY[1:-1]} to reset friction brake, "
-            f"{self.cfg.ARGS.QUIT_KEY[1:-1]} to quit."
-        )
         self.friction_brake.monitor_process.start()
         with keyboard.Listener(on_release=self._on_release) as listener:
             listener.join()
@@ -4350,10 +3930,10 @@ def get_tackle_stats():
     :rtype: tuple[float, float]
     """
     prompts = (
-        "Reel's max drag (kg)",
-        "Reel's friction brake wear (%)",
-        "Leader's load capacity (kg)",
-        "Leader's wear (%)",
+        "Reel's max drag (kg): ",
+        "Reel's friction brake wear (%): ",
+        "Leader's load capacity (kg): ",
+        "Leader's wear (%): ",
     )
 
     while True:
@@ -4402,7 +3982,7 @@ def get_validated_input(prompt: str) -> float | None:
 def main():
     """Main function to run the friction brake calculation.
 
-    Prompts the user for input, calculates the result, and displays them in a table.
+    Prompts the user for input, calculates the results, and displays them in a table.
     """
     print("Please enter your tackle's stats, type q to quit, r to restart. ")
     while True:
@@ -4411,7 +3991,7 @@ def main():
         max_tension = max_drag * max_friction_brake / 30
 
         table = Table(
-            "Result",
+            "Results",
             title="Your tackle's real stats 🎣",
             show_header=False,
             min_width=36,
@@ -4437,7 +4017,11 @@ discarding crafted items, fast crafting mode, and a configurable crafting limit.
 .. moduleauthor:: Derek Lee <dereklee0310@gmail.com>
 """
 
+# pylint: disable=no-member
+# setting node's attributes will be merged on the fly
+
 import argparse
+import logging
 import random
 import sys
 from datetime import datetime
@@ -4445,42 +4029,66 @@ from pathlib import Path
 from time import sleep
 
 import pyautogui as pag
-from pynput import keyboard
+from rich.logging import RichHandler
 
 sys.path.append(".")
-from rf4s.app.app import ToolApp
+
+from rf4s.app.app import App
 from rf4s.config.config import print_cfg
-from rf4s.result.result import CraftResult
-from rf4s.utils import create_rich_logger
+from rf4s.controller.detection import Detection
 
 CRAFT_DELAY = 4.0
-CRAFT_DELAY_2X = CRAFT_DELAY * 2
-LOOP_DELAY = 0.5
-LOOP_DELAY_2X = LOOP_DELAY * 2
+CRAFT_DELAY_2X = 8.0
+
+ANIMATION_DELAY = 0.5
+ANIMATION_DELAY_2X = 1.0
 ROOT = Path(__file__).resolve().parents[1]
 
-logger = create_rich_logger()
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[RichHandler(rich_tracebacks=True)],
+)
+logger = logging.getLogger("rich")
 
 
-class CraftApp(ToolApp):
+class CraftApp(App):
     """Main application class for automating crafting.
 
     This class manages the configuration, detection, and execution of the crafting
     process. It tracks the number of successful and failed crafts, as well as the
     total number of materials used.
+
+    Attributes:
+        cfg (CfgNode): Configuration node merged from YAML and CLI arguments.
+        window (Window): Game window controller instance.
+        detection (Detection): Detection instance for in-game state checks.
+        success_count (int): Number of successful crafts.
+        fail_count (int): Number of failed crafts.
+        craft_count (int): Total number of crafting attempts.
     """
 
     def __init__(self):
-        """Initialize the application."""
+        """Initialize the application.
+
+        Loads configuration, parses command-line arguments, and sets up the game window
+        and detection instances.
+        """
         super().__init__()
         print_cfg(self.cfg.ARGS)
-        self.result = CraftResult()
 
-    def create_parser(self) -> argparse.ArgumentParser:
-        """Create an argument parser for the application.
+        self.detection = Detection(self.cfg, self.window)
 
-        :return: Configured argument parser.
-        :rtype: argparse.ArgumentParser
+        self.success_count = 0
+        self.fail_count = 0
+        self.craft_count = 0
+
+    def _parse_args(self) -> argparse.Namespace:
+        """Configure argument parser and parse command-line arguments.
+
+        :return: Parsed command-line arguments.
+        :rtype: argparse.Namespace
         """
         parser = argparse.ArgumentParser(description="Craft items automatically.")
         parser.add_argument("opts", nargs="*", help="overwrite configuration")
@@ -4504,66 +4112,7 @@ class CraftApp(ToolApp):
             help="number of items to craft, no limit by default",
             metavar="LIMIT",
         )
-        return parser
-
-    def get_action_delays(self) -> tuple[float, float]:
-        """Get crafting and checking delays.
-
-        :return: Two delays in seconds
-        :rtype: tuple[float, float]
-        """
-        if self.cfg.ARGS.FAST:
-            return CRAFT_DELAY, LOOP_DELAY
-        return (
-            random.uniform(CRAFT_DELAY, CRAFT_DELAY_2X),
-            random.uniform(LOOP_DELAY, LOOP_DELAY_2X),
-        )
-
-    def move_cursor_to_make_button(self) -> None:
-        """Move the cursor to the make button position.
-
-        This method uses the Detection class to find the position of the make button
-        and moves the cursor to that position.
-        """
-        make_button_position = self.detection.get_make_button_position()
-        if make_button_position is None:
-            logger.critical(
-                "Make button not found, please set the interface scale to "
-                "1x or move your mouse around"
-            )
-            self.window.activate_script_window()
-            sys.exit(1)
-        pag.moveTo(make_button_position)
-
-    def craft_item(
-        self, craft_delay: float, accept_delay: float, accept_key: str
-    ) -> None:
-        """Craft an item.
-
-        :param craft_delay: Delay in seconds before accepting the crafted item.
-        :type craft_delay: float
-        :param accept_delay: Delay in seconds after accepting the crafted item.
-        :type accept_delay: float
-        :param accept_key: Key to press after accepting the crafted item.
-        :type accept_key: str
-        """
-        logger.info("Crafting item")
-        pag.click()
-        sleep(craft_delay)
-        self.result.material += 1
-        while True:
-            if self.detection.is_operation_success():
-                logger.info("Crafting successed")
-                self.result.succes += 1
-                break
-
-            if self.detection.is_operation_failed():
-                logger.warning("Crafting failed")
-                self.result.fail += 1
-                break
-            sleep(LOOP_DELAY)
-        pag.press(accept_key)
-        sleep(accept_delay)
+        return parser.parse_args()
 
     def _start(self) -> None:
         """Main loop for crafting items.
@@ -4571,15 +4120,52 @@ class CraftApp(ToolApp):
         Executes the primary loop for crafting items until materials are exhausted or
         the crafting limit is reached. Supports fast crafting mode and discarding items.
         """
-        if self.cfg.KEY.QUIT != "CTRL-C":
-            listener = keyboard.Listener(on_release=self._on_release)
-            listener.start()
-        print(f"Press {self.cfg.KEY.QUIT} to quit.")
         random.seed(datetime.now().timestamp())
-        accept_key = "backspace" if self.cfg.ARGS.DISCARD else "space"
-        self.move_cursor_to_make_button()
-        while True:
-            i
+        craft_delay = CRAFT_DELAY
+        click_delay = ANIMATION_DELAY
+
+        make_button_position = self.detection.get_make_button_position()
+        if make_button_position is None:
+            logger.critical(
+                "Make button not found, please set the interface scale to "
+                "1x or move your mouse around"
+            )
+            self.window.activate_script_window()
+            return
+        pag.moveTo(make_button_position)
+
+        while self.detection.is_material_complete():
+            logger.info("Crafting item")
+            pag.click()
+
+            if not self.cfg.ARGS.FAST:
+                craft_delay = random.uniform(CRAFT_DELAY, CRAFT_DELAY_2X)
+                click_delay = random.uniform(ANIMATION_DELAY, ANIMATION_DELAY_2X)
+            sleep(craft_delay)
+
+            while True:
+                if self.detection.is_operation_success():
+                    logger.info("Item crafted successfully")
+                    self.success_count += 1
+                    break
+
+                if self.detection.is_operation_failed():
+                    logger.warning("Failed to craft item")
+                    self.fail_count += 1
+                    break
+                sleep(ANIMATION_DELAY)
+            self.craft_count += 1
+
+            pag.press("backspace" if self.cfg.ARGS.DISCARD else "space")
+            if self.craft_count >= self.cfg.ARGS.CRAFT_LIMIT:
+                break
+            sleep(click_delay)
+
+
+if __name__ == "__main__":
+    CraftApp().start(
+        (
+            ("Success
 
 
 # === tools\harvest.py ===
@@ -4592,38 +4178,54 @@ mode and configurable check delays.
 .. moduleauthor:: Derek Lee <dereklee0310@gmail.com>
 """
 
+# pylint: disable=no-member
+# setting node's attributes will be merged on the fly
+
 import argparse
+import logging
 import sys
 from pathlib import Path
 from time import sleep
 
 import pyautogui as pag
-from pynput import keyboard
+from rich.logging import RichHandler
+from yacs.config import CfgNode as CN
 
 sys.path.append(".")
 
-from rf4s.app.app import ToolApp
+from rf4s import utils
+from rf4s.app.app import App
 from rf4s.config.config import print_cfg
+from rf4s.controller.detection import Detection
 from rf4s.controller.timer import Timer
-from rf4s.result.result import HarvestResult
-from rf4s.utils import create_rich_logger
 
 ROOT = Path(__file__).resolve().parents[1]
-DIG_DELAY = 5  # 4 + 1 s
-CHECK_DELAY = 0.5
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[RichHandler(rich_tracebacks=True)],
+)
+logger = logging.getLogger("rich")
+
 ANIMATION_DELAY = 0.5
 
-logger = create_rich_logger()
 
-
-class HarvestApp(ToolApp):
+class HarvestApp(App):
     """Main application class for automating bait harvesting and hunger/comfort refill.
 
     This class manages the configuration, detection, and execution of the harvesting
     and refill processes. It also handles power-saving mode and check delays.
 
     Attributes:
+        cfg (CfgNode): Configuration node merged from YAML and CLI arguments.
+        window (Window): Game window controller instance.
+        detection (Detection): Detection instance for in-game state checks.
         timer (Timer): Timer instance for managing cooldowns.
+        tea_count (int): Number of tea consumed.
+        carrot_count (int): Number of carrots consumed.
+        harvest_count (int): Number of baits harvested.
     """
 
     def __init__(self):
@@ -4633,16 +4235,20 @@ class HarvestApp(ToolApp):
         detection, and timer instances.
         """
         super().__init__()
-        print_cfg(self.cfg.ARGS)
+        print(self.cfg.ARGS)
 
+        self.detection = Detection(self.cfg, self.window)
         self.timer = Timer(self.cfg)
-        self.result = HarvestResult()
 
-    def create_parser(self) -> argparse.ArgumentParser:
-        """Create an argument parser for the application.
+        self.tea_count = 0
+        self.carrot_count = 0
+        self.harvest_count = 0
 
-        :return: Configured argument parser.
-        :rtype: argparse.ArgumentParser
+    def _parse_args(self) -> argparse.Namespace:
+        """Configure argument parser and parse command-line arguments.
+
+        :return: Parsed command-line arguments.
+        :rtype: argparse.Namespace
         """
         parser = argparse.ArgumentParser(
             description="Harvest baits and refill hunger/comfort automatically.",
@@ -4667,54 +4273,39 @@ class HarvestApp(ToolApp):
             default=32,
             help="delay time between each checks, 32s by default",
         )
-        return parser
+        return parser.parse_args()
 
-    def harvest_baits(self) -> None:
-        """Harvest baits using shovel/spoon.
+    def _harvest_baits(self) -> None:
+        """Harvest baits from the game.
 
         The digging tool should be pulled out before calling this method. Waits for
         harvest success and presses the spacebar to complete the process.
         """
         logger.info("Harvesting baits")
+        # Dig and wait (4 + 1)s
         pag.click()
-        sleep(DIG_DELAY)
-        while not self.detection.is_harvest_success():
-            sleep(CHECK_DELAY)
+        sleep(5)
+
+        i = 64
+        while i > 0 and not self.detection.is_harvest_success():
+            i = utils.sleep_and_decrease(i, 2)
         pag.press("space")
         logger.info("Baits harvested succussfully")
         sleep(ANIMATION_DELAY)
 
-    def refill_player_stats(self) -> None:
-        """Refill player stats using tea and carrot."""
-        if not self.cfg.ARGS.REFILL:
-            return
+    def _consume_food(self, food: str) -> None:
+        """Consume a specific type of food.
 
-        logger.info("Refilling player stats")
-        # Comfort is affected by weather, add a check to avoid over drink
-        if self.detection.is_comfort_low() and self.timer.is_tea_drinkable():
-            self._use_item("tea")
-            self.result.tea += 1
+        Opens the food menu, moves the cursor to the food's position, and clicks to consume it.
 
-        if self.detection.is_hunger_low():
-            self._use_item("carrot")
-            self.result.carrot += 1
-
-    def _use_item(self, item: str) -> None:
-        """Access an item by name using quick selection shortcut or menu.
-
-        :param item: The name of the item to access.
-        :type item: str
+        :param food: The type of food to consume (e.g., "tea" or "carrot").
+        :type food: str
         """
-        logger.info("Using item: %s", item)
-        key = str(self.cfg.KEY[item.upper()])
-        if key != "-1":  # Use shortcut
-            pag.press(key)
-        else:  # Open food menu
-            with pag.hold("t"):
-                sleep(ANIMATION_DELAY)
-                food_position = self.detection.get_food_position(item)
-                pag.moveTo(food_position)
-                pag.click()
+        logger.info("Consuming %s", food)
+        with pag.hold("t"):
+            sleep(ANIMATION_DELAY)
+            pag.moveTo(self.detection.get_food_position(food))
+            pag.click()
         sleep(ANIMATION_DELAY)
 
     def _start(self) -> None:
@@ -4723,19 +4314,15 @@ class HarvestApp(ToolApp):
         Executes the primary loop for checking hunger/comfort levels, consuming food,
         and harvesting baits. Supports power-saving mode and configurable check delays.
         """
-        if self.cfg.KEY.QUIT != "CTRL-C":
-            listener = keyboard.Listener(on_release=self._on_release)
-            listener.start()
-        print(f"Press {self.cfg.KEY.QUIT} to quit.")
-
         pag.press(str(self.cfg.KEY.DIGGING_TOOL))
         sleep(3)
         while True:
-            self.refill_player_stats()
-            if self.detection.is_energy_high():
-                self.harvest_baits()
-                self.result.bait += 1
-      
+            if self.cfg.ARGS.REFILL:
+                if self.detection.is_comfort_low() and self.timer.is_tea_drinkable():
+                    self._consume_food("tea")
+                    self.tea_count += 1
+
+          
 
 
 # === tools\main.py ===
@@ -4748,7 +4335,12 @@ argument parsing, window management, and fishing automation.
 .. moduleauthor:: Derek Lee <dereklee0310@gmail.com>
 """
 
+# pylint: disable=no-member
+
+import logging
+import os
 import shlex
+import signal
 import smtplib
 import sys
 from argparse import ArgumentParser, Namespace
@@ -4757,48 +4349,53 @@ from socket import gaierror
 
 from pynput import keyboard
 from rich import box, print
+from rich.logging import RichHandler
 from rich.panel import Panel
 from rich.style import Style
 from rich.table import Column, Table
 from yacs.config import CfgNode as CN
 
 sys.path.append(".")  # python -m module -> python file
-from rf4s import utils
-from rf4s.app.app import App
-from rf4s.config import config
-from rf4s.player import Player
-from rf4s.utils import create_rich_logger
 
-logger = create_rich_logger()
+from rf4s import utils
+from rf4s.config import config
+from rf4s.controller.window import Window
+from rf4s.player import Player
+
+# Ignore %(name)s because it's verbose
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[RichHandler(rich_tracebacks=True)],
+)
+logger = logging.getLogger("rich")
+# Reference: https://rich.readthedocs.io/en/latest/logging.html
 
 ARGUMENTS = (
-    ("R", "rainbow", "rainbow line meter for retrieval detection"),
-    ("t", "tag", "keep only tagged fishes"),
-    ("c", "coffee", "drink coffee if stamina is low during a fish fight"),
-    ("a", "alcohol", "drink alcohol before keeping the fish"),
-    ("r", "refill", "consume tea and carrot if hunger or comfort is low"),
-    ("H", "harvest", "harvest baits before casting the rod"),
-    ("L", "lure", "change current lure with a random one, mode: spin"),
-    ("m", "mouse", "move mouse randomly before casting the rod"),
-    ("P", "pause", "pause the script before casting the rod occasionally"),
-    ("RC", "random-cast", "do a redundant rod cast randomly"),
-    ("SC", "skip-cast", "skip the first rod cast"),
-    ("l", "lift", "lift the tackle constantly during a fish fight"),
-    ("e", "electro", "enable electric mode for Electro Raptor series reel"),
-    ("FB", "friction-brake", "adjust friction brake automatically"),
-    ("GR", "gear-ratio", "switch the gear ratio after the retrieval timed out"),
-    ("b", "bite", "save a screenshot in screenshots/ before rod cast (for bite spot)"),
-    ("s", "screenshot", "save a screenshot in screenshots/ after you caught a fish"),
-    ("d", "data", "save fishing data in /logs"),
-    ("E", "email", "send email noticication after the script stop"),
+    ("c", "coffee", "drink coffee if stamina is low"),
+    ("A", "alcohol", "drink alcohol before keeping the fish regularly"),
+    ("r", "refill", "refill hunger and comfort by consuming tea and carrot"),
+    ("H", "harvest", "harvest baits before casting"),
+    ("g", "gear_ratio", "switch the gear ratio after the retrieval timed out"),
+    ("f", "friction_brake", "enable auto friction brake"),
+    ("l", "lift", "lift the tackle constantly while pulling a fish"),
+    ("C", "skip_cast", "Immediately start retrieving for the first fish"),
+    ("o", "spod_rod", "recast spod rod regularly"),
+    ("L", "lure", "change current lure with a random one regularly, mode: spin"),
+    ("x", "mouse", "move mouse randomly before casting the rod"),
+    ("X", "pause", "pause the script before casting the rod regularly"),
+    ("b", "bite", "take a screenshot after casting in screenshots/ (for fish spot)"),
+    ("S", "screenshot", "take a screenshot of every fish you caught in screenshots/"),
+    ("e", "email", "send email noticication after the script stop"),
+    ("P", "plot", "save fishing data in /logs"),
     ("M", "miaotixing", "send miaotixing notification after the script stop"),
-    ("D", "discord", "send Discord notification after the script stop"),
-    ("S", "shutdown", "shutdown computer after the script stop"),
-    ("SO", "signout", "sign out instead of closing the game"),
-    ("SR", "spod-rod", "recast spod rod"),
-    ("DM", "dry-mix", "enable dry mix refill, mode: bottom"),
-    ("GB", "groundbait", "enable groundbait refill, mode: bottom"),
-    ("PVA", "pva", "enable pva refill, mode: bottom"),
+    ("s", "shutdown", "shutdown computer after the script stop"),
+    ("so", "signout", "Sign out instead of closing the game"),
+    ("gb", "groundbait", "enable groundbait refill, mode: bottom"),
+    ("dm", "dry_mix", "enable dry mix refill, mode: bottom"),
+    ("pva", "pva", "enable pva refill, mode: bottom"),
+    ("E", "electro", "enable electric mode for Electro Raptor series reel"),
 )
 
 LOGO = """
@@ -4815,17 +4412,17 @@ DISCORD_LINK = "Discord: https://discord.gg/BZQWQnAMbY"
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class RF4SApp(App):
+class Rf4sApp:
     """Main application class for Russian Fishing 4 automation.
 
     This class orchestrates the entire automation process, from parsing command-line
     arguments to configuring the environment and executing the fishing routine.
 
     Attributes:
-        cfg (CfgNode): Configuration node merged from YAML and CLI arguments
-        args (Namespace): Parsed command-line arguments
-        window (Window): Game window controller instance
-        player (Player): Player instance for fishing automation
+        cfg (CfgNode): Configuration node merged from YAML and CLI arguments.
+        args (Namespace): Parsed command-line arguments.
+        window (Window): Game window controller instance.
+        player (Player): Player instance for fishing automation.
     """
 
     def __init__(self):
@@ -4833,31 +4430,29 @@ class RF4SApp(App):
 
         Loads configuration, parses command-line arguments, and sets up the environment.
         """
-        super().__init__()
-        self.parser = self.create_parser()
+        print(Panel.fit(LOGO, box=box.HEAVY), GITHUB_LINK, DISCORD_LINK, sep="\n")
+        self.cfg = config.setup_cfg()
+        self.cfg.merge_from_file(ROOT / "config.yaml")
+
         # Parser will use the last occurence if the arguments are duplicated,
         # so put argv at the end to overwrite launch options.
-        self.args = self.parser.parse_args(
-            shlex.split(self.cfg.SCRIPT.LAUNCH_OPTIONS) + sys.argv[1:]
-        )
-        if not self.is_args_valid(self.args):
+        args_list = shlex.split(self.cfg.SCRIPT.LAUNCH_OPTIONS) + sys.argv[1:]
+        self.parser = self._setup_parser()
+        args = self.parser.parse_args(args_list)
+        if not self._is_args_valid(args):
             sys.exit(1)
-        self.cfg.merge_from_other_cfg(CN({"ARGS": config.dict_to_cfg(vars(self.args))}))
 
-    def create_parser(self) -> ArgumentParser:
+        args_cfg = CN({"ARGS": config.dict_to_cfg(vars(args))})
+        self.cfg.merge_from_other_cfg(args_cfg)
+        self.args = args
+
+    def _setup_parser(self) -> ArgumentParser:
         """Configure the argument parser with all supported command-line options.
 
         :return: Configured ArgumentParser instance with all options and flags.
         :rtype: ArgumentParser
         """
-        parser = ArgumentParser(description="Start AFK script for Russian Fishing 4")
-        parser.add_argument("opts", nargs="*", help="overwrite configuration")
-
-        for argument in ARGUMENTS:
-            flag1 = f"-{argument[0]}"
-            flag2 = f"--{argument[1]}"
-            help_message = argument[2]
-            parser.add_argument(flag1, flag2, action="s
+        parser = ArgumentParser(description="Start AFK script for Russ
 
 
 # === tools\move.py ===
@@ -4869,54 +4464,57 @@ Supports toggling movement state and includes optional Shift key integration for
 .. moduleauthor:: Derek Lee <dereklee0310@gmail.com>
 """
 
+# pylint: disable=no-member
+
 import argparse
 import sys
 from pathlib import Path
 
 import pyautogui as pag
 from pynput import keyboard
-from rich import print
 
 sys.path.append(".")
+
 from rf4s import utils
-from rf4s.app.app import ToolApp
+from rf4s.app.app import App
 from rf4s.config.config import print_cfg
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class MoveApp(ToolApp):
+class MoveApp(App):
     """Main controller for movement automation in Russian Fishing 4.
 
     Manages configuration, keyboard event listeners, and W/Shift key simulation.
 
     Attributes:
         cfg (CfgNode): Configuration node merged from YAML and CLI arguments.
+        window (Window): Game window controller instance.
         w_key_pressed (bool): Tracks current state of W key simulation.
     """
 
     def __init__(self):
         """Initialize configuration, CLI arguments, and game window.
 
-        1. Format keybinds in cfg node.
-        2. Create w key flag.
+        Merges configurations from multiple sources (YAML, CLI) and prepares
+        the game window controller.
         """
         super().__init__()
 
         # Format key
         self.cfg.defrost()
+        self.cfg.ARGS.EXIT_KEY = f"'{self.cfg.ARGS.EXIT_KEY}'"
         self.cfg.ARGS.PAUSE_KEY = f"'{self.cfg.ARGS.PAUSE_KEY}'"
-        self.cfg.ARGS.QUIT_KEY = f"'{self.cfg.ARGS.QUIT_KEY}'"
         self.cfg.freeze()
         print_cfg(self.cfg.ARGS)
 
         self.w_key_pressed = True
 
-    def create_parser(self) -> argparse.ArgumentParser:
-        """Create an argument parser for the application.
+    def _parse_args(self) -> argparse.Namespace:
+        """Parse command-line arguments.
 
-        :return: Configured argument parser.
-        :rtype: argparse.ArgumentParser
+        :return: Parsed arguments containing runtime configuration.
+        :rtype: argparse.Namespace
         """
         parser = argparse.ArgumentParser(
             description="Moving the game character forward with W key."
@@ -4926,22 +4524,22 @@ class MoveApp(ToolApp):
             "-s", "--shift", action="store_true", help="Hold Shift key while moving"
         )
         parser.add_argument(
-            "-p",
+            "-e",
+            "--exit-key",
+            default="s",
+            type=str,
+            help="key to quit the script, s by default",
+            metavar="KEY",
+        )
+        parser.add_argument(
+            "-r",
             "--pause-key",
             default="w",
             type=str,
             help="key to pause the script, w by default",
             metavar="KEY",
         )
-        parser.add_argument(
-            "-q",
-            "--quit-key",
-            default="s",
-            type=str,
-            help="key to quit the script, s by default",
-            metavar="KEY",
-        )
-        return parser
+        return parser.parse_args()
 
     def _on_release(self, key: keyboard.KeyCode) -> None:
         """Handle keyboard release events for script control.
@@ -4949,7 +4547,7 @@ class MoveApp(ToolApp):
         :param key: Key released by the user.
         :type key: keyboard.KeyCode
         """
-        if str(key).lower() == self.cfg.ARGS.QUIT_KEY:
+        if str(key).lower() == self.cfg.ARGS.EXIT_KEY:
             sys.exit()
         elif str(key).lower() == self.cfg.ARGS.PAUSE_KEY:
             if self.w_key_pressed:
@@ -4960,15 +4558,17 @@ class MoveApp(ToolApp):
 
     @utils.release_keys_after(arrow_keys=True)
     def _start(self) -> None:
-        """Start W key automation and keyboard listener."""
-        print(
-            f"Press {self.cfg.ARGS.PAUSE_KEY[1:-1]} to pause, "
-            f"{self.cfg.ARGS.QUIT_KEY[1:-1]} to quit."
-        )
+        """Start automation and keyboard listener.
+
+        Begins W key simulation (with optional Shift key) and enters blocking listener loop.
+        Automatically releases keys when stopped via decorator.
+        """
+
         if self.cfg.ARGS.SHIFT:
             pag.keyDown("shift")
         pag.keyDown("w")
-        # Blocking listener loop
+
+        # blocking listener loop
         with keyboard.Listener(on_release=self._on_release) as listener:
             listener.join()
 
