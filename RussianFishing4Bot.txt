@@ -1,0 +1,2790 @@
+
+
+# === all_content_Version3.py ===
+import os
+
+IMAGE_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.bmp', '.gif', '.webp', '.tiff'}
+VIDEO_EXTENSIONS = {'.mp4', '.avi', '.mov', '.mkv', '.webm', '.flv', '.wmv'}
+AUDIO_EXTENSIONS = {'.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a'}
+CACHE_EXTENSIONS = {'.pyc'}
+BINARY_EXTENSIONS = IMAGE_EXTENSIONS | VIDEO_EXTENSIONS | AUDIO_EXTENSIONS | {
+    '.exe', '.dll', '.so', '.bin', '.dat', '.zip', '.rar', '.7z', '.tar', '.gz', '.pdf'
+}
+
+def remove_bom(text):
+    if text.startswith('\ufeff'):
+        return text[1:]
+    return text
+
+def safe_read_file(path, max_chars=5000):
+    try:
+        with open(path, encoding="utf-8", errors="replace") as f:
+            content = f.read(max_chars)
+            return remove_bom(content)
+    except Exception as e:
+        try:
+            with open(path, encoding="latin1") as f:
+                content = f.read(max_chars)
+                return remove_bom(content)
+        except Exception as e2:
+            return f"<не удалось прочитать: {e2}>"
+
+def file_type_note(name):
+    ext = os.path.splitext(name)[1].lower()
+    if ext in CACHE_EXTENSIONS:
+        return "Это кэш Python (pyc-файл)"
+    if ext in IMAGE_EXTENSIONS:
+        return "Это картинка"
+    if ext in VIDEO_EXTENSIONS:
+        return "Это видео"
+    if ext in AUDIO_EXTENSIONS:
+        return "Это аудиофайл"
+    if ext in BINARY_EXTENSIONS:
+        return "Это бинарный файл"
+    return None
+
+def collect_all_content(start_path, out_path="all_content.txt", max_chars=5000):
+    with open(out_path, "w", encoding="utf-8") as out:
+        for root, dirs, files in os.walk(start_path):
+            for name in files:
+                file_path = os.path.join(root, name)
+                rel_path = os.path.relpath(file_path, start_path)
+                if rel_path == out_path:
+                    continue  # не добавлять сам файл all_content.txt
+                out.write(f"\n\n# === {rel_path} ===\n")
+                note = file_type_note(name)
+                if note:
+                    out.write(note + "\n")
+                else:
+                    content = safe_read_file(file_path, max_chars)
+                    out.write(content)
+                    out.write("\n")
+    print(f"Готово! Всё содержимое помещено в {out_path}")
+
+if __name__ == "__main__":
+    collect_all_content(".")
+
+
+# === main.py ===
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Russian Fishing 4 Bot - Главный файл запуска
+"""
+import os
+import sys
+import time
+import logging
+import tkinter as tk
+from tkinter import ttk, messagebox
+from pathlib import Path
+import threading
+
+# Добавляем текущий каталог в путь поиска модулей
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# Импортируем модули бота
+from bot.adaptive_resolution import ResolutionManager
+from bot.detection import FishingDetector
+from bot.controller import GameController
+from bot.fishing_logic import FishingLogic
+from bot.utils import setup_logger, save_screenshot, format_time, calculate_stats
+
+class BotGUI:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Russian Fishing 4 Bot")
+        self.root.geometry("800x600")
+        self.root.resizable(True, True)
+        
+        # Настройка иконки, если она существует
+        icon_path = Path("templates/icon.ico")
+        if icon_path.exists():
+            self.root.iconbitmap(icon_path)
+        
+        # Инициализация логгера
+        self.logger = setup_logger("main")
+        self.logger.info("Запуск приложения")
+        
+        # Инициализация компонентов бота
+        self.init_bot_components()
+        
+        # Создание интерфейса
+        self.create_ui()
+        
+        # Переменные состояния
+        self.bot_running = False
+        self.bot_thread = None
+        self.stop_event = threading.Event()
+        
+        self.logger.info("GUI инициализирован")
+    
+    def init_bot_components(self):
+        """Инициализация компонентов бота"""
+        try:
+            self.resolution_manager = ResolutionManager()
+            self.controller = GameController()
+            self.detector = FishingDetector(self.resolution_manager)
+            self.fishing_logic = FishingLogic(self.controller, self.detector, self.resolution_manager)
+            
+            self.logger.info("Компоненты бота инициализированы")
+        except Exception as e:
+            self.logger.error(f"Ошибка при инициализации компонентов бота: {e}")
+            messagebox.showerror("Ошибка", f"Не удалось инициализировать бота: {e}")
+    
+    def create_ui(self):
+        """Создание пользовательского интерфейса"""
+        # Создаем основной контейнер с вкладками
+        self.tab_control = ttk.Notebook(self.root)
+        
+        # Вкладка "Основное"
+        self.main_tab = ttk.Frame(self.tab_control)
+        self.tab_control.add(self.main_tab, text="Основное")
+        
+        # Вкладка "Настройки"
+        self.settings_tab = ttk.Frame(self.tab_control)
+        self.tab_control.add(self.settings_tab, text="Настройки")
+        
+        # Вкладка "Статистика"
+        self.stats_tab = ttk.Frame(self.tab_control)
+        self.tab_control.add(self.stats_tab, text="Статистика")
+        
+        # Вкладка "Журнал"
+        self.log_tab = ttk.Frame(self.tab_control)
+        self.tab_control.add(self.log_tab, text="Журнал")
+        
+        # Размещаем вкладки
+        self.tab_control.pack(expand=1, fill="both")
+        
+        # Заполняем вкладки
+        self.setup_main_tab()
+        self.setup_settings_tab()
+        self.setup_stats_tab()
+        self.setup_log_tab()
+        
+        # Строка состояния
+        self.status_bar = tk.Label(self.root, text="Готов к работе", bd=1, relief=tk.SUNKEN, anchor=tk.W)
+        self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
+    
+    def setup_main_tab(self):
+        """Настройка основной вкладки"""
+        # Фрейм для информации
+        info_frame = ttk.LabelFrame(self.main_tab, text="Информация")
+        info_frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+        
+        # Логотип и информация
+        logo_frame = ttk.Frame(info_frame)
+        logo_frame.pack(pady=10, fill=tk.X)
+        
+        # Добавляем информационный текст
+        info_text = (
+            "Russian Fishing 4 Bot\n\n"
+            "Бот для автоматизации рыбалки в игре Russian Fishing 4.\n"
+            "Настройте профиль рыбалки и запустите бота.\n\n"
+            "ВНИМАНИЕ: Используйте на свой страх и риск!\n"
+            "Автоматизация игрового процесса может нарушать правила игры."
+        )
+        
+        info_label = tk.Label(info_frame, text=info_text, justify=tk.LEFT, padx=10, pady=10)
+        info_label.pack(padx=10, pady=10)
+        
+        # Фрейм управления
+        control_frame = ttk.LabelFrame(self.main_tab, text="Управление")
+        control_frame.pack(padx=10, pady=10, fill=tk.X)
+        
+        # Выбор профиля рыбалки
+        profile_frame = ttk.Frame(control_frame)
+        profile_frame.pack(padx=10, pady=5, fill=tk.X)
+        
+        ttk.Label(profile_frame, text="Профиль рыбалки:").pack(side=tk.LEFT, padx=5)
+        
+        self.profile_var = tk.StringVar(value="маховая")
+        profiles = ["маховая", "поплавочная", "фидер", "спиннинг"]
+        profile_menu = ttk.Combobox(profile_frame, textvariable=self.profile_var, values=profiles)
+        profile_menu.pack(side=tk.LEFT, padx=5, fill=t
+
+
+# === README.md ===
+# Бот для Russian Fishing 4
+
+Автоматизированный бот для рыбалки в игре Russian Fishing 4, разработанный для различных снастей, включая маховую ловлю.
+
+## Возможности
+
+- **Автоматическая рыбалка** - заброс удочки, ожидание поклевки, подсечка и вываживание
+- **Поддержка разных снастей** - маховая удочка, поплавочная, фидер, спиннинг
+- **Адаптация к разным разрешениям** - поддержка 2560x1440 (QHD), 1920x1080 (Full HD), 1600x900 (HD+)
+- **Настраиваемые профили** - гибкая настройка под различные условия рыбалки
+- **Статистика** - отслеживание пойманной рыбы, времени работы и эффективности
+- **Графический интерфейс** - удобное управление и мониторинг
+
+## Структура проекта
+
+```
+RussianFishing4Bot/
+├── bot/                      # Основная логика бота
+│   ├── __init__.py
+│   ├── adaptive_resolution.py # Система адаптивных разрешений
+│   ├── detection.py          # Детекция игровых событий
+│   ├── controller.py         # Управление игрой
+│   ├── fishing_logic.py      # Логика рыбалки
+│   └── utils.py              # Вспомогательные функции
+├── config/                   # Конфигурационные файлы
+│   ├── config.yaml           # Основная конфигурация
+│   ├── qhd_config.yaml       # Специальная конфигурация для QHD
+│   └── profiles.yaml         # Профили рыбалки
+├── templates/                # Шаблоны изображений
+│   ├── 2560x1440/           # Шаблоны для QHD
+│   │   ├── fish_hook.png
+│   │   ├── reel_full.png
+│   │   ├── fish_captured.png
+│   │   └── inventory_button.png
+│   ├── 1920x1080/           # Шаблоны для Full HD
+│   └── 1600x900/            # Шаблоны для HD+
+├── logs/                     # Логи работы бота
+├── screenshots/              # Скриншоты (для отладки)
+├── tools/                    # Дополнительные утилиты
+│   ├── calibration.py        # Калибровка координат
+│   ├── template_creator.py   # Создание шаблонов
+│   └── resolution_tester.py  # Тестирование разрешений
+├── main.py                   # Главный файл запуска
+├── requirements.txt          # Зависимости Python
+├── README.md                 # Документация
+└── setup.py                  # Установочный скрипт
+```
+
+## Требования
+
+- Python 3.7 или выше
+- Windows 10/11
+- Библиотеки:
+  - opencv-python
+  - numpy
+  - Pillow
+  - pyautogui
+  - keyboard
+  - pyyaml
+
+## Установка
+
+### Установка зависимостей
+
+```bash
+pip install -r requirements.txt
+```
+
+### Запуск бота
+
+```bash
+python main.py
+```
+
+## Использование
+
+1. **Запуск бота**
+   - Запустите `main.py`
+   - Выберите профиль рыбалки (маховая, поплавочная, фидер, спиннинг)
+   - Нажмите "Запустить бота"
+   - Переключитесь в игру в течение 5 секунд
+
+2. **Настройки**
+   - Во вкладке "Настройки" можно настроить параметры работы
+   - Можно установить ограничения по времени или количеству рыбы
+
+3. **Статистика**
+   - Во вкладке "Статистика" отображается информация о текущей сессии
+   - Количество пойманной рыбы, сорвавшихся поклевок, успешность
+
+4. **Журнал**
+   - Во вкладке "Журнал" отображаются логи работы бота
+   - Можно сохранить лог в файл для анализа
+
+## Настройка для маховой ловли
+
+Для маховой ловли бот:
+1. Выбирает удочку
+2. Забрасывает снасть
+3. Ждет поклевку
+4. Делает подсечку
+5. Вываживает рыбу
+
+Настройки можно изменить в файле `config/profiles.yaml`.
+
+## Калибровка
+
+Для работы с различными разрешениями и настройками игры:
+
+1. Запустите инструмент калибровки:
+```bash
+python tools/calibration.py
+```
+
+2. Создайте шаблоны для распознавания:
+```bash
+python tools/template_creator.py
+```
+
+## Отказ от ответственности
+
+Этот бот разработан исключительно в образовательных целях. Использование ботов может нарушать правила игры Russian Fishing 4. Используйте на свой страх и риск.
+
+## Лицензия
+
+Этот проект предназначен для личного использования и обучения. Распространение без разрешения запрещено.
+
+
+# === requirements.txt ===
+# Основные зависимости для Russian Fishing 4 Bot
+pyautogui>=0.9.54
+opencv-python>=4.8.0
+Pillow>=10.0.0
+numpy>=1.24.0
+pynput>=1.7.6
+PyYAML>=6.0
+pywin32>=306
+
+
+# === setup.py ===
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Скрипт настройки бота для Russian Fishing 4
+"""
+import os
+import sys
+import logging
+import shutil
+from pathlib import Path
+
+# Настройка логирования
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger('setup')
+
+def main():
+    """Настройка окружения для бота"""
+    logger.info("Начало настройки бота Russian Fishing 4")
+    
+    # Проверка и создание директорий
+    directories = [
+        "bot",
+        "config",
+        "logs", 
+        "screenshots",
+        "templates",
+        "templates/2560x1440",
+        "templates/1920x1080", 
+        "templates/1600x900"
+    ]
+
+    for directory in directories:
+        os.makedirs(directory, exist_ok=True)
+        logger.info(f"Проверена/создана директория: {directory}")
+
+    # Создаем пустую конфигурацию, если её нет
+    config_path = Path("config/config.yaml")
+    if not config_path.exists():
+        try:
+            import yaml
+            default_config = {
+                "version": 1.0,
+                "detection": {
+                    "bite_threshold": 0.7,
+                    "caught_threshold": 0.7,
+                    "check_interval": 0.5
+                },
+                "regions": {
+                    "float_region": {
+                        "top": 0.4,
+                        "bottom": 0.6,
+                        "left": 0.45,
+                        "right": 0.55
+                    },
+                    "indicator_region": {
+                        "top": 0.7,
+                        "bottom": 0.9,
+                        "left": 0.4,
+                        "right": 0.6
+                    },
+                    "catch_region": {
+                        "top": 0.3,
+                        "bottom": 0.5,
+                        "left": 0.4,
+                        "right": 0.6
+                    },
+                    "ui_region": {
+                        "top": 0.0,
+                        "bottom": 1.0,
+                        "left": 0.0,
+                        "right": 1.0
+                    }
+                }
+            }
+            with open(config_path, 'w', encoding='utf-8') as f:
+                yaml.dump(default_config, f, default_flow_style=False)
+            logger.info(f"Создана базовая конфигурация: {config_path}")
+        except Exception as e:
+            logger.error(f"Ошибка при создании конфигурации: {e}")
+
+    # Проверка наличия файла __init__.py в папке bot
+    init_file = Path("bot/__init__.py")
+    if not init_file.exists():
+        with open(init_file, 'w', encoding='utf-8') as f:
+            f.write("# Инициализация пакета bot\n")
+        logger.info(f"Создан файл: {init_file}")
+
+    # Проверка зависимостей
+    try:
+        import cv2
+        import numpy
+        import pyautogui
+        import keyboard
+        import yaml
+        from PIL import Image
+        logger.info("Проверка зависимостей: ОК")
+    except ImportError as e:
+        logger.error(f"Отсутствует библиотека: {e.name}")
+        print(f"\nОшибка: Отсутствует библиотека {e.name}")
+        print("Установите необходимые библиотеки командой:")
+        print("pip install opencv-python numpy pyautogui keyboard pyyaml pillow")
+
+    print("\nНастройка завершена!")
+    print("Теперь запустите python main.py для запуска бота")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        logger.error(f"Ошибка при настройке: {e}")
+        print(f"Ошибка: {e}")
+    
+    input("\nНажмите Enter для выхода...")
+
+
+# === setup_bot.py ===
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Скрипт для начальной настройки бота Russian Fishing 4
+"""
+import os
+import sys
+import logging
+import shutil
+from pathlib import Path
+
+# Настройка логирования
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger('setup')
+
+def create_directories():
+    """Создание необходимых директорий"""
+    dirs = [
+        "bot",
+        "config",
+        "logs",
+        "screenshots",
+        "templates",
+        "templates/2560x1440",
+        "templates/1920x1080", 
+        "templates/1600x900",
+        "tools"
+    ]
+    
+    for directory in dirs:
+        os.makedirs(directory, exist_ok=True)
+        logger.info(f"Создана/проверена директория: {directory}")
+
+def create_placeholder_templates():
+    """Создание шаблонов-заглушек для начала работы"""
+    # Базовая заглушка (пустое изображение 50x50 пикселей)
+    import numpy as np
+    import cv2
+    
+    # Создаем базовые шаблоны для каждого разрешения
+    resolutions = ["2560x1440", "1920x1080", "1600x900"]
+    template_names = ["fish_hook.png", "fish_icon.png", "ok.png", "inventory_button.png"]
+    
+    for resolution in resolutions:
+        template_dir = Path(f"templates/{resolution}")
+        template_dir.mkdir(exist_ok=True)
+        
+        for template_name in template_names:
+            template_path = template_dir / template_name
+            
+            if not template_path.exists():
+                # Создаем пустое изображение с текстом названия
+                img = np.zeros((50, 100, 3), np.uint8)
+                # Добавляем серый прямоугольник для распознавания
+                cv2.rectangle(img, (10, 10), (90, 40), (128, 128, 128), -1)
+                # Добавляем текст
+                cv2.putText(img, template_name.split('.')[0], (15, 30), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
+                
+                # Сохраняем изображение
+                cv2.imwrite(str(template_path), img)
+                logger.info(f"Создан шаблон-заглушка: {template_path}")
+
+def create_default_config():
+    """Создание базовой конфигурации"""
+    import yaml
+    
+    config_dir = Path("config")
+    config_dir.mkdir(exist_ok=True)
+    
+    config_path = config_dir / "config.yaml"
+    if not config_path.exists():
+        config = {
+            "version": 1.0,
+            "detection": {
+                "bite_threshold": 0.7,
+                "caught_threshold": 0.7,
+                "check_interval": 0.5
+            },
+            "regions": {
+                "float_region": {
+                    "top": 0.4,
+                    "bottom": 0.6,
+                    "left": 0.45,
+                    "right": 0.55
+                },
+                "indicator_region": {
+                    "top": 0.7,
+                    "bottom": 0.9,
+                    "left": 0.4,
+                    "right": 0.6
+                },
+                "catch_region": {
+                    "top": 0.3,
+                    "bottom": 0.5,
+                    "left": 0.4,
+                    "right": 0.6
+                },
+                "ui_region": {
+                    "top": 0.0,
+                    "bottom": 1.0,
+                    "left": 0.0,
+                    "right": 1.0
+                }
+            }
+        }
+        
+        with open(config_path, 'w', encoding='utf-8') as f:
+            yaml.dump(config, f, default_flow_style=False)
+        
+        logger.info(f"Создана базовая конфигурация: {config_path}")
+    
+    # Создаем пример профиля рыбалки
+    profile_path = config_dir / "profiles.yaml"
+    if not profile_path.exists():
+        profiles = {
+            "маховая": {
+                "rod_slot": 1,
+                "cast_power": 0.7,
+                "max_wait_time": 40,
+                "max_reel_time": 30,
+                "hook_delay": 0.2,
+                "description": "Профиль для ловли маховой удочкой на небольшой дистанции"
+            }
+        }
+        
+        with open(profile_path, 'w', encoding='utf-8') as f:
+            yaml.dump(profiles, f, default_flow_style=False)
+        
+        logger.info(f"Создан пример профиля рыбалки: {profile_path}")
+
+def check_imports():
+    """Проверка наличия необходимых библиотек"""
+    required_packages = [
+        "opencv-python", 
+        "numpy", 
+        "PyAutoGUI", 
+        "Pillow", 
+        "PyYAML", 
+        "keyboard"
+    ]
+    
+    missing_packages = []
+    
+    for package in required_packages:
+        try:
+            __import__(package.replace('-', '_').split('==')[0])
+        except ImportError:
+            missing_packages.append(package)
+    
+    if missing_packages:
+        logger.warning(f"Отсутствуют следующие библиотеки: {', '.join(missing_packages)}")
+        logger.info("Установите их с помощью команды:")
+        logger.info(f"pip install {' '.join(missing_packages)}")
+        
+        # Спрашиваем, хочет ли пользователь установить пакеты
+        resp
+
+
+# === bot\adaptive_resolution.py ===
+"""
+Модуль для адаптации бота к разным разрешениям экрана
+"""
+import logging
+import cv2
+import numpy as np
+from pathlib import Path
+import yaml
+import os
+
+class ResolutionManager:
+    def __init__(self):
+        self.current_resolution = None
+        self.template_path = None
+        self.config_path = None
+        self.logger = logging.getLogger('adaptive_resolution')
+    
+    def detect_resolution(self, screenshot):
+        """Определяет текущее разрешение экрана из скриншота"""
+        try:
+            # Проверка на None
+            if screenshot is None:
+                self.logger.error("Получен пустой скриншот для определения разрешения")
+                # Вернем стандартное разрешение вместо None
+                self.current_resolution = (1920, 1080)
+                self.logger.info(f"Установлено стандартное разрешение: 1920x1080")
+                return 1920, 1080
+                
+            height, width = screenshot.shape[:2]
+            self.current_resolution = (width, height)
+            self.logger.info(f"Определено разрешение экрана: {width}x{height}")
+            return width, height
+            
+        except Exception as e:
+            self.logger.error(f"Ошибка при определении разрешения: {e}")
+            # Возвращаем стандартное разрешение как запасной вариант
+            self.current_resolution = (1920, 1080)
+            self.logger.info(f"Установлено стандартное разрешение: 1920x1080")
+            return 1920, 1080
+    
+    def set_template_path(self):
+        """Устанавливает путь к шаблонам в зависимости от разрешения"""
+        if not self.current_resolution:
+            self.logger.error("Текущее разрешение не определено, используем 1920x1080")
+            self.current_resolution = (1920, 1080)
+            
+        width, height = self.current_resolution
+        
+        # Поддерживаемые разрешения
+        supported_resolutions = {
+            (2560, 1440): "2560x1440",
+            (1920, 1080): "1920x1080",
+            (1600, 900): "1600x900"
+        }
+        
+        # Выбираем путь к шаблонам
+        template_dir = None
+        if (width, height) in supported_resolutions:
+            template_dir = Path(f"templates/{supported_resolutions[(width, height)]}")
+        else:
+            # Ближайшее подходящее разрешение
+            nearest = min(supported_resolutions.keys(), 
+                         key=lambda r: abs(r[0]/r[1] - width/height))
+            template_dir = Path(f"templates/{supported_resolutions[nearest]}")
+        
+        # Создаем директорию, если она не существует
+        os.makedirs(template_dir, exist_ok=True)
+        
+        self.template_path = template_dir
+        self.logger.info(f"Установлен путь к шаблонам: {self.template_path}")
+        
+        # Проверяем наличие шаблонов
+        template_count = len(list(template_dir.glob('*.png')))
+        if template_count == 0:
+            self.logger.warning(f"В папке {template_dir} нет шаблонов!")
+        else:
+            self.logger.info(f"Найдено шаблонов: {template_count}")
+        
+        return self.template_path
+    
+    def set_config_path(self):
+        """Устанавливает путь к конфигурации в зависимости от разрешения"""
+        if not self.current_resolution:
+            self.logger.error("Текущее разрешение не определено, используем стандартную конфигурацию")
+            self.config_path = Path("config/config.yaml")
+        else:
+            width, height = self.current_resolution
+            
+            if width == 2560 and height == 1440:
+                self.config_path = Path("config/qhd_config.yaml")
+            else:
+                self.config_path = Path("config/config.yaml")
+        
+        # Создаем базовую конфигурацию, если она не существует
+        self._ensure_default_config()
+            
+        self.logger.info(f"Использую конфигурацию: {self.config_path}")
+        return self.config_path
+    
+    def _ensure_default_config(self):
+        """Создает базовую конфигурацию, если она не существует"""
+        config_dir = Path("config")
+        os.makedirs(config_dir, exist_ok=True)
+        
+        default_config_path = config_dir / "config.yaml"
+        
+        if not default_config_path.exists():
+            self.logger.warning("Конфигурационный файл отсутствует, создаем стандартную конфигурацию")
+            
+            default_config = {
+                "version": 1.0,
+                "detection": {
+                    "bite_threshold": 0.7,
+                    "caught_threshold": 0.7,
+                    "check_interval": 0.5
+                },
+                "regions": {
+                    "float_region": {
+                        "top": 0.4,
+                        "bottom": 0.6,
+                        "left": 0.45,
+                        "right": 0.55
+                    },
+                    "indicator_region": {
+                        "top": 0.7,
+                        "bottom": 0.9,
+                        "left": 0.4,
+                        "right": 0.6
+        
+
+
+# === bot\controller.py ===
+"""
+Модуль для управления игрой через симуляцию клавиатуры и мыши
+"""
+import pyautogui
+import random
+import time
+import logging
+import keyboard
+import numpy as np
+
+class GameController:
+    def __init__(self):
+        self.logger = logging.getLogger('controller')
+        # Настройка pyautogui для безопасности
+        pyautogui.FAILSAFE = True
+        # Уменьшаем скорость действий для более естественного поведения
+        pyautogui.PAUSE = 0.1
+    
+    def press_key(self, key, duration=0.1):
+        """
+        Нажатие клавиши с заданной продолжительностью
+        
+        Args:
+            key: Клавиша для нажатия
+            duration: Продолжительность нажатия в секундах
+        """
+        try:
+            self.logger.debug(f"Нажатие клавиши: {key}")
+            pyautogui.keyDown(key)
+            self.safe_delay(duration)
+            pyautogui.keyUp(key)
+            self.safe_delay(random.uniform(0.05, 0.15))
+            return True
+        except Exception as e:
+            self.logger.error(f"Ошибка при нажатии клавиши {key}: {e}")
+            return False
+    
+    def mouse_click(self, x=None, y=None, button='left'):
+        """
+        Клик мышью в указанных координатах
+        
+        Args:
+            x: X-координата (если None - текущая позиция)
+            y: Y-координата (если None - текущая позиция)
+            button: Кнопка мыши ('left', 'right', 'middle')
+        """
+        try:
+            if x is not None and y is not None:
+                # Добавляем немного случайности для имитации человека
+                x_offset = random.randint(-2, 2)
+                y_offset = random.randint(-2, 2)
+                
+                # Плавно перемещаемся к точке
+                pyautogui.moveTo(
+                    x + x_offset,
+                    y + y_offset,
+                    duration=random.uniform(0.1, 0.3)
+                )
+                
+            self.logger.debug(f"Клик мышью ({button}) в позиции {pyautogui.position()}")
+            pyautogui.click(button=button)
+            self.safe_delay(random.uniform(0.05, 0.15))
+            return True
+        except Exception as e:
+            self.logger.error(f"Ошибка при клике мышью: {e}")
+            return False
+    
+    def mouse_hold(self, duration=1.0, button='left'):
+        """
+        Удерживание кнопки мыши
+        
+        Args:
+            duration: Продолжительность удержания в секундах
+            button: Кнопка мыши ('left', 'right', 'middle')
+        """
+        try:
+            self.logger.debug(f"Удерживание кнопки мыши ({button}) на {duration} сек")
+            pyautogui.mouseDown(button=button)
+            self.safe_delay(duration)
+            pyautogui.mouseUp(button=button)
+            self.safe_delay(random.uniform(0.05, 0.15))
+            return True
+        except Exception as e:
+            self.logger.error(f"Ошибка при удерживании кнопки мыши: {e}")
+            return False
+    
+    def is_key_pressed(self, key):
+        """
+        Проверяет, нажата ли указанная клавиша
+        
+        Args:
+            key: Клавиша для проверки
+        """
+        try:
+            return keyboard.is_pressed(key)
+        except Exception as e:
+            self.logger.error(f"Ошибка при проверке нажатия клавиши {key}: {e}")
+            return False
+    
+    def select_item_slot(self, slot_num):
+        """
+        Выбирает слот предмета в панели быстрого доступа (1-9)
+        
+        Args:
+            slot_num: Номер слота (1-9)
+        """
+        if 1 <= slot_num <= 9:
+            self.logger.info(f"Выбор слота {slot_num}")
+            return self.press_key(str(slot_num))
+        else:
+            self.logger.error(f"Неверный номер слота: {slot_num}")
+            return False
+    
+    def cast_fishing_rod(self, power=0.8):
+        """
+        Заброс удочки с указанной силой
+        
+        Args:
+            power: Сила заброса от 0 до 1.0
+        """
+        self.logger.info(f"Заброс удочки с силой {power:.1f}")
+        
+        # Фиксируем силу заброса в диапазоне [0.3, 1.0]
+        adjusted_power = max(0.3, min(power, 1.0))
+        hold_time = adjusted_power * 1.5  # Макс. время удержания - 1.5 сек
+        
+        # Удерживаем кнопку для замаха
+        success = self.mouse_hold(duration=hold_time, button='left')
+        
+        if success:
+            self.logger.info("Удочка заброшена")
+            return True
+        else:
+            self.logger.error("Не удалось забросить удочку")
+            return False
+    
+    def take_screenshot(self):
+        """
+        Делает скриншот текущего экрана
+        
+        Returns:
+            numpy.ndarray: Изображение экрана
+        """
+        try:
+            screenshot = pyautogui.screenshot()
+            # Преобразуем в numpy array
+            return np.array(screenshot)
+        except Exception as e:
+            self.logger.error(f"Ошибка при создании скриншота: {e}")
+            return None
+    
+    def safe_delay(self, seconds):
+        """
+        Безопасная задержка с небо
+
+
+# === bot\detection.py ===
+"""
+Модуль для обнаружения игровых событий:
+- поклевка рыбы
+- состояние рыбы при вываживании
+- успешный улов
+"""
+import cv2
+import numpy as np
+import logging
+import time
+from pathlib import Path
+
+class FishingDetector:
+    def __init__(self, resolution_manager):
+        self.logger = logging.getLogger('detection')
+        self.resolution_manager = resolution_manager
+        self.templates = {}
+        self.load_templates()
+        
+    def load_templates(self):
+        """Загружает шаблоны для обнаружения из директории шаблонов"""
+        if not self.resolution_manager.template_path:
+            self.resolution_manager.set_template_path()
+            
+        template_dir = self.resolution_manager.template_path
+        self.logger.info(f"Загрузка шаблонов из {template_dir}")
+        
+        try:
+            template_files = {
+                'fish_hook': 'fish_hook.png',
+                'reel_full': 'reel_full.png',
+                'fish_captured': 'fish_captured.png',
+                'inventory_button': 'inventory_button.png',
+                'movement': 'movement.png',  # Альтернативный индикатор поклевки
+                'ok': 'ok.png',             # Кнопка OK после поимки рыбы
+                'energy': 'energy.png',      # Индикатор энергии
+                'exit': 'exit.png'           # Кнопка выхода
+            }
+            
+            for name, filename in template_files.items():
+                path = template_dir / filename
+                if path.exists():
+                    self.templates[name] = cv2.imread(str(path))
+                    self.logger.info(f"Загружен шаблон {name} из {path}")
+                else:
+                    self.logger.warning(f"Шаблон {path} не найден")
+                    
+            # Создаем заглушку, если нет ни одного шаблона
+            if not self.templates:
+                self.logger.warning("Шаблоны не найдены, создаем заглушки")
+                self._create_dummy_templates()
+                
+        except Exception as e:
+            self.logger.error(f"Ошибка при загрузке шаблонов: {e}")
+            # Создаем заглушки
+            self._create_dummy_templates()
+    
+    def _create_dummy_templates(self):
+        """Создает шаблоны-заглушки для тестирования"""
+        try:
+            # Создаем простые изображения 50x50 пикселей
+            dummy_img = np.zeros((50, 50, 3), dtype=np.uint8)
+            dummy_img[:, :] = (128, 128, 128)  # Серый цвет
+            
+            self.templates['fish_hook'] = dummy_img.copy()
+            self.templates['reel_full'] = dummy_img.copy()
+            self.templates['fish_captured'] = dummy_img.copy()
+            self.templates['inventory_button'] = dummy_img.copy()
+            
+            self.logger.info("Созданы шаблоны-заглушки для тестирования")
+        except Exception as e:
+            self.logger.error(f"Ошибка при создании шаблонов-заглушек: {e}")
+    
+    def detect_bite(self, screenshot):
+        """
+        Определяет поклевку рыбы
+        
+        Args:
+            screenshot: Изображение экрана
+            
+        Returns:
+            bool: True если обнаружена поклевка
+        """
+        try:
+            if 'fish_hook' not in self.templates:
+                self.logger.warning("Отсутствует шаблон для обнаружения поклевки")
+                return False
+                
+            # Получаем конфигурацию для области поклевки
+            config = self.resolution_manager.load_config()
+            
+            # Область экрана для поиска поклевки
+            height, width = screenshot.shape[:2]
+            region_config = config.get('regions', {}).get('float_region', {})
+            
+            top = int(height * region_config.get('top', 0.4))
+            bottom = int(height * region_config.get('bottom', 0.6))
+            left = int(width * region_config.get('left', 0.45))
+            right = int(width * region_config.get('right', 0.55))
+            
+            # Проверяем корректность границ
+            if top >= bottom or left >= right:
+                self.logger.error("Некорректные границы региона поплавка")
+                return False
+            
+            # Вырезаем область для анализа
+            float_region = screenshot[top:bottom, left:right]
+            
+            # Преобразуем в оттенки серого
+            gray_region = cv2.cvtColor(float_region, cv2.COLOR_BGR2GRAY)
+            template_gray = cv2.cvtColor(self.templates['fish_hook'], cv2.COLOR_BGR2GRAY)
+            
+            # Ищем шаблон поклевки
+            result = cv2.matchTemplate(gray_region, template_gray, cv2.TM_CCOEFF_NORMED)
+            threshold = config.get('detection', {}).get('bite_threshold', 0.7)
+            
+            # Проверяем, есть ли совпадение с шаблоном
+            loc = np.where(result >= threshold)
+            if len(loc[0]) > 0:
+                self.logger.info("Обнаружена поклевка!")
+                return True
+                
+            return False
+            
+        except Exception as e:
+         
+
+
+# === bot\fishing_logic.py ===
+"""
+Основная логика рыбалки - реализация алгоритмов ловли различными снастями
+"""
+import time
+import random
+import logging
+from pathlib import Path
+import yaml
+
+class FishingLogic:
+    def __init__(self, controller, detector, resolution_manager):
+        self.controller = controller
+        self.detector = detector
+        self.resolution_manager = resolution_manager
+        self.logger = logging.getLogger('fishing_logic')
+        
+        # Флаг для остановки бота
+        self.running = False
+        
+        # Статистика
+        self.caught_fish = 0
+        self.failed_attempts = 0
+        self.start_time = time.time()
+        
+        # Загружаем профиль рыбалки
+        self.current_profile = None
+        self.config = None
+        self.load_config()
+    
+    def load_config(self):
+        """Загрузка основной конфигурации"""
+        self.config = self.resolution_manager.load_config()
+    
+    def load_fishing_profile(self, profile_name):
+        """
+        Загружает профиль рыбалки с нужными настройками
+        
+        Args:
+            profile_name: Название профиля (напр. "маховая")
+        """
+        try:
+            profile_path = Path("config/profiles.yaml")
+            
+            # Создаем базовый профиль, если файл не существует
+            if not profile_path.exists():
+                self.create_default_profile()
+                
+            with open(profile_path, 'r', encoding='utf-8') as f:
+                profiles = yaml.safe_load(f)
+            
+            if profiles and profile_name in profiles:
+                self.current_profile = profiles[profile_name]
+                self.logger.info(f"Загружен профиль рыбалки: {profile_name}")
+                return True
+            else:
+                self.logger.error(f"Профиль {profile_name} не найден")
+                # Используем первый профиль из файла или создаем базовый
+                if profiles and len(profiles) > 0:
+                    first_profile_name = list(profiles.keys())[0]
+                    self.current_profile = profiles[first_profile_name]
+                    self.logger.info(f"Используется доступный профиль: {first_profile_name}")
+                    return True
+                else:
+                    self.create_default_profile()
+                    with open(profile_path, 'r', encoding='utf-8') as f:
+                        profiles = yaml.safe_load(f)
+                    self.current_profile = profiles["маховая"]
+                    self.logger.info("Используется стандартный профиль: маховая")
+                    return True
+            
+        except Exception as e:
+            self.logger.error(f"Ошибка при загрузке профиля рыбалки: {e}")
+            # Создаем профиль по умолчанию
+            self.current_profile = {
+                "rod_slot": 1,
+                "cast_power": 0.7,
+                "max_wait_time": 40,
+                "max_reel_time": 30,
+                "hook_delay": 0.2,
+            }
+            self.logger.info("Используется встроенный профиль по умолчанию")
+            return False
+    
+    def create_default_profile(self):
+        """Создает файл с профилями по умолчанию"""
+        try:
+            profile_path = Path("config/profiles.yaml")
+            profiles = {
+                "маховая": {
+                    "rod_slot": 1,
+                    "cast_power": 0.7,
+                    "max_wait_time": 40,
+                    "max_reel_time": 30,
+                    "hook_delay": 0.2,
+                    "description": "Профиль для ловли маховой удочкой на небольшой дистанции"
+                }
+            }
+            
+            # Создаем директорию config, если она не существует
+            profile_path.parent.mkdir(exist_ok=True)
+            
+            # Записываем профили в файл
+            with open(profile_path, 'w', encoding='utf-8') as f:
+                yaml.dump(profiles, f, default_flow_style=False)
+                
+            self.logger.info(f"Создан стандартный профиль рыбалки в {profile_path}")
+            
+        except Exception as e:
+            self.logger.error(f"Ошибка при создании стандартного профиля: {e}")
+    
+    def start_fishing(self, profile_name="маховая", max_time=None, max_catches=None):
+        """
+        Запуск основного цикла рыбалки
+        
+        Args:
+            profile_name: Название профиля рыбалки
+            max_time: Максимальное время работы в секундах (None - бесконечно)
+            max_catches: Максимальное количество пойманных рыб (None - бесконечно)
+        """
+        # Загружаем профиль
+        if not self.load_fishing_profile(profile_name):
+            self.logger.error(f"Не удалось загрузить профиль {profile_name}")
+            return False
+        
+        self.logger.info(f"Начинаем рыбалку по профилю {profile_name}")
+        self.start_time = time.time()
+        self.caught_fish = 0
+        self.failed_attempts = 0
+        
+        # Устанавливаем флаг работы
+        self.running = True
+        
+        try:
+            
+
+
+# === bot\utils.py ===
+"""
+Вспомогательные функции для бота
+"""
+import time
+import random
+import logging
+import os
+from datetime import datetime
+import numpy as np
+from PIL import Image
+
+def safe_delay(seconds):
+    """
+    Безопасная задержка с небольшой вариацией
+    
+    Args:
+        seconds: Базовое время задержки в секундах
+    """
+    # Добавляем до 20% случайной вариации
+    variation = seconds * random.uniform(0.9, 1.1)
+    time.sleep(variation)
+    return variation
+
+def setup_logger(name=None, level=logging.INFO):
+    """
+    Настройка логгера с записью в файл
+    
+    Args:
+        name: Имя логгера (None для корневого логгера)
+        level: Уровень логирования
+    """
+    # Создаем директорию для логов
+    log_dir = "logs"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    
+    # Имя файла лога с датой и временем
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    log_file = os.path.join(log_dir, f"bot_{timestamp}.log")
+    
+    # Настраиваем формат вывода
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    # Хендлер для файла
+    file_handler = logging.FileHandler(log_file, encoding='utf-8')
+    file_handler.setFormatter(formatter)
+    
+    # Хендлер для консоли
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    
+    # Настраиваем логгер
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+    
+    return logger
+
+def save_screenshot(screenshot, prefix="debug"):
+    """
+    Сохраняет скриншот в папку screenshots
+    
+    Args:
+        screenshot: Изображение в формате numpy array
+        prefix: Префикс для имени файла
+        
+    Returns:
+        str: Путь к сохраненному файлу
+    """
+    try:
+        # Создаем папку, если не существует
+        screenshots_dir = "screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+            
+        # Генерируем имя файла с датой и временем
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        filename = os.path.join(screenshots_dir, f"{prefix}_{timestamp}.png")
+        
+        # Преобразуем numpy array в изображение PIL
+        if isinstance(screenshot, np.ndarray):
+            image = Image.fromarray(screenshot)
+            image.save(filename)
+        else:
+            screenshot.save(filename)
+            
+        return filename
+    except Exception as e:
+        logging.getLogger(__name__).error(f"Ошибка при сохранении скриншота: {e}")
+        return None
+
+def format_time(seconds):
+    """
+    Форматирует время в секундах в формат ЧЧ:ММ:СС
+    
+    Args:
+        seconds: Время в секундах
+    """
+    hours, remainder = divmod(int(seconds), 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+def calculate_stats(caught_fish, failed_attempts, start_time):
+    """
+    Рассчитывает статистику рыбалки
+    
+    Args:
+        caught_fish: Количество пойманной рыбы
+        failed_attempts: Количество неудачных попыток
+        start_time: Время начала рыбалки (в формате time.time())
+        
+    Returns:
+        dict: Статистика рыбалки
+    """
+    now = time.time()
+    elapsed_time = now - start_time
+    total_attempts = caught_fish + failed_attempts
+    
+    stats = {
+        'caught_fish': caught_fish,
+        'failed_attempts': failed_attempts,
+        'total_attempts': total_attempts,
+        'elapsed_time': elapsed_time,
+        'elapsed_time_formatted': format_time(elapsed_time),
+        'success_rate': (caught_fish / total_attempts * 100) if total_attempts > 0 else 0,
+        'fish_per_hour': (caught_fish / elapsed_time * 3600) if elapsed_time > 0 else 0
+    }
+    
+    return stats
+
+
+# === bot\__init__.py ===
+# Инициализация пакета bot
+
+
+
+# === bot\___init__.py ===
+# Инициализация пакета bot
+from . import utils
+from . import controller
+from . import detection
+from . import adaptive_resolution
+from . import fishing_logic
+
+__version__ = '0.1.0'
+
+
+# === bot\__pycache__\adaptive_resolution.cpython-312.pyc ===
+Это кэш Python (pyc-файл)
+
+
+# === bot\__pycache__\controller.cpython-312.pyc ===
+Это кэш Python (pyc-файл)
+
+
+# === bot\__pycache__\detection.cpython-312.pyc ===
+Это кэш Python (pyc-файл)
+
+
+# === bot\__pycache__\fishing_logic.cpython-312.pyc ===
+Это кэш Python (pyc-файл)
+
+
+# === bot\__pycache__\utils.cpython-312.pyc ===
+Это кэш Python (pyc-файл)
+
+
+# === bot\__pycache__\__init__.cpython-312.pyc ===
+Это кэш Python (pyc-файл)
+
+
+# === config\config.yaml ===
+# Обновленная конфигурация бота для RF4
+version: 1.0
+
+# Настройки обнаружения
+detection:
+  bite_threshold: 0.7          # Порог обнаружения поклевки
+  caught_threshold: 0.7        # Порог обнаружения пойманной рыбы
+  check_interval: 0.3          # Интервал проверки в секундах
+
+# Области экрана для анализа (относительные координаты)
+regions:
+  float_region:                # Область поплавка
+    top: 0.4
+    bottom: 0.6
+    left: 0.45
+    right: 0.55
+  indicator_region:            # Область индикатора вываживания
+    top: 0.7
+    bottom: 0.9
+    left: 0.4
+    right: 0.6
+  catch_region:                # Область сообщения о пойманной рыбе
+    top: 0.3
+    bottom: 0.5
+    left: 0.4
+    right: 0.6
+  ui_region:                   # Общая область для элементов интерфейса
+    top: 0.0
+    bottom: 1.0
+    left: 0.0
+    right: 1.0
+  energy_region:               # Область для индикатора энергии
+    top: 0.8
+    bottom: 0.95
+    left: 0.1
+    right: 0.3
+  ready_region:                # Область для проверки готовности к забросу
+    top: 0.6
+    bottom: 0.9
+    left: 0.3
+    right: 0.7
+  caught_fish_buttons:         # Область с кнопками при пойманной рыбе
+    top: 0.6
+    bottom: 0.8
+    left: 0.3
+    right: 0.7
+
+
+# === config\profiles.yaml ===
+# Обновлённые профили рыбалки с настройками для улучшенного бота
+
+# Маховая удочка
+маховая:
+  rod_slot: 1                  # Слот с удочкой (1-9)
+  cast_power: 0.7              # Сила заброса (0.0-1.0)
+  use_shift: true              # Использовать Shift для дальнего заброса
+  max_wait_time: 40            # Макс. время ожидания поклёвки
+  max_reel_time: 30            # Макс. время вываживания
+  hook_delay: 0.2              # Задержка перед подсечкой в секундах
+  reel_duration: 5.0           # Продолжительность вываживания рыбы в секундах
+  auto_accept: true            # Автоматически нажимать пробел при поимке рыбы
+  
+  # Настройки обнаружения поклёвки
+  bite_detection:
+    normal_threshold: 0.7      # Порог для обычного состояния поплавка
+    prepare_threshold: 0.75    # Порог для состояния "приготовиться"
+    bite_threshold: 0.8        # Порог для активной поклёвки
+    
+  # Настройки вываживания
+  reeling:
+    pulling_threshold: 2       # Количество последовательных обнаружений "сопротивление" для паузы
+    normal_threshold: 2        # Количество последовательных обнаружений "нормальное" для подмотки
+    tired_threshold: 1         # Количество последовательных обнаружений "устала" для активной подмотки
+    
+  description: "Профиль для ловли маховой удочкой с дальним забросом"
+
+
+# === config\qhd_config.yaml ===
+# Конфигурация для QHD разрешения (2560x1440)
+# Наследует основные настройки из config.yaml
+
+version: 1.0
+
+# Настройки обнаружения для QHD
+detection:
+  bite_threshold: 0.8
+  caught_threshold: 0.8
+  check_interval: 0.5
+
+# Области экрана адаптированы для QHD
+regions:
+  float_region:
+    top: 0.42
+    bottom: 0.58
+    left: 0.47
+    right: 0.53
+  indicator_region:
+    top: 0.72
+    bottom: 0.88
+    left: 0.42
+    right: 0.58
+  catch_region:
+    top: 0.32
+    bottom: 0.48
+    left: 0.42
+    right: 0.58
+
+
+# === logs\bot_2025-06-04_23-42-35.log ===
+2025-06-04 23:42:35,716 - main - INFO - Запуск приложения
+2025-06-04 23:42:35,718 - main - INFO - Компоненты бота инициализированы
+2025-06-04 23:42:35,760 - main - INFO - GUI инициализирован
+2025-06-04 23:42:53,376 - main - INFO - Запуск бота с профилем: маховая
+2025-06-04 23:42:53,376 - main - INFO - Ограничения: время=0 сек, улов=0 шт.
+2025-06-04 23:42:53,376 - main - INFO - Подготовка к запуску бота...
+2025-06-04 23:43:54,788 - main - INFO - Остановка бота...
+2025-06-04 23:44:40,127 - main - INFO - Остановка бота...
+2025-06-04 23:44:40,437 - main - INFO - Остановка бота...
+2025-06-04 23:44:40,680 - main - INFO - Остановка бота...
+2025-06-04 23:44:40,948 - main - INFO - Остановка бота...
+
+
+
+# === logs\bot_2025-06-04_23-51-05.log ===
+2025-06-04 23:51:05,791 - main - INFO - Запуск приложения
+2025-06-04 23:51:05,792 - main - INFO - Компоненты бота инициализированы
+2025-06-04 23:51:05,842 - main - INFO - GUI инициализирован
+2025-06-04 23:51:09,596 - main - INFO - Запуск бота с профилем: маховая
+2025-06-04 23:51:09,596 - main - INFO - Ограничения: время=0 сек, улов=0 шт.
+2025-06-04 23:51:09,597 - main - INFO - Подготовка к запуску бота...
+2025-06-04 23:52:25,717 - main - INFO - Остановка бота...
+
+
+
+# === logs\bot_2025-06-05_00-12-06.log ===
+2025-06-05 00:12:06,885 - main - INFO - Запуск приложения
+2025-06-05 00:12:06,888 - main - INFO - Компоненты бота инициализированы
+2025-06-05 00:12:06,940 - main - INFO - GUI инициализирован
+2025-06-05 00:12:08,777 - main - INFO - Запуск бота с профилем: маховая
+2025-06-05 00:12:08,777 - main - INFO - Ограничения: время=0 сек, улов=0 шт.
+2025-06-05 00:12:08,778 - main - INFO - Подготовка к запуску бота...
+2025-06-05 00:13:04,466 - main - INFO - Лог сохранен в файл: C:/Games/Я/Загрузки/123.log
+2025-06-05 00:13:08,985 - main - INFO - Остановка бота...
+2025-06-05 00:13:10,677 - main - INFO - Бот остановлен
+2025-06-05 00:13:13,330 - main - INFO - Сохранение настроек...
+2025-06-05 00:13:13,331 - main - INFO - Настройки сохранены
+2025-06-05 00:13:20,746 - main - INFO - Запуск бота с профилем: маховая
+2025-06-05 00:13:20,746 - main - INFO - Ограничения: время=0 сек, улов=0 шт.
+2025-06-05 00:13:20,747 - main - INFO - Подготовка к запуску бота...
+
+
+
+# === logs\bot_2025-06-05_00-27-48.log ===
+2025-06-05 00:27:48,460 - main - INFO - Запуск приложения
+2025-06-05 00:27:48,463 - main - INFO - Компоненты бота инициализированы
+2025-06-05 00:27:48,519 - main - INFO - GUI инициализирован
+
+
+
+# === logs\bot_2025-06-05_00-28-17.log ===
+2025-06-05 00:28:17,451 - main - INFO - Запуск приложения
+2025-06-05 00:28:17,457 - main - INFO - Компоненты бота инициализированы
+2025-06-05 00:28:17,499 - main - INFO - GUI инициализирован
+2025-06-05 00:28:23,472 - main - INFO - Запуск бота с профилем: маховая
+2025-06-05 00:28:23,473 - main - INFO - Ограничения: время=0 сек, улов=0 шт.
+2025-06-05 00:28:23,473 - main - INFO - Подготовка к запуску бота...
+2025-06-05 00:29:56,155 - main - INFO - Остановка бота...
+2025-06-05 00:29:58,028 - main - INFO - Бот остановлен
+2025-06-05 00:30:04,211 - main - INFO - Статистика сброшена
+
+
+
+# === templates\1600x900\fish_hook.png ===
+Это картинка
+
+
+# === templates\1600x900\fish_icon.png ===
+Это картинка
+
+
+# === templates\1600x900\inventory_button.png ===
+Это картинка
+
+
+# === templates\1600x900\ok.png ===
+Это картинка
+
+
+# === templates\1920x1080\fish_hook.png ===
+Это картинка
+
+
+# === templates\1920x1080\fish_icon.png ===
+Это картинка
+
+
+# === templates\1920x1080\inventory_button.png ===
+Это картинка
+
+
+# === templates\1920x1080\ok.png ===
+Это картинка
+
+
+# === templates\2560x1440\fish_hook.png ===
+Это картинка
+
+
+# === templates\2560x1440\fish_icon.png ===
+Это картинка
+
+
+# === templates\2560x1440\inventory_button.png ===
+Это картинка
+
+
+# === templates\2560x1440\ok.png ===
+Это картинка
+
+
+# === tools\calibration.py ===
+"""
+Утилита для калибровки координат и настройки зон обнаружения
+"""
+import sys
+import tkinter as tk
+import time
+import pyautogui
+import cv2
+import numpy as np
+import yaml
+from pathlib import Path
+from PIL import Image, ImageTk
+
+class CalibrationTool:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("RF4 Bot Calibration Tool")
+        
+        # Настройки окна
+        self.root.geometry("1200x800")
+        self.root.resizable(True, True)
+        
+        # Режим калибровки
+        self.calibration_mode = tk.StringVar(value="float")  # По умолчанию калибруем поплавок
+        
+        # Создаем фреймы
+        self.create_frames()
+        
+        # Текущее изображение и координаты
+        self.current_image = None
+        self.screenshot = None
+        self.config = {}
+        
+        # Загружаем текущую конфигурацию
+        self.load_config()
+        
+    def create_frames(self):
+        """Создание интерфейса"""
+        # Фрейм для кнопок управления
+        control_frame = tk.Frame(self.root)
+        control_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+        
+        # Кнопки
+        tk.Button(control_frame, text="Сделать скриншот", 
+                 command=self.take_screenshot).pack(side=tk.LEFT, padx=5)
+                 
+        tk.Button(control_frame, text="Сохранить конфигурацию", 
+                 command=self.save_config).pack(side=tk.LEFT, padx=5)
+                 
+        tk.Button(control_frame, text="Загрузить изображение", 
+                 command=self.load_image).pack(side=tk.LEFT, padx=5)
+        
+        # Режим калибровки
+        modes = [("Поплавок", "float"), 
+                ("Индикатор", "indicator"), 
+                ("Сообщение об улове", "catch")]
+                
+        mode_frame = tk.LabelFrame(control_frame, text="Режим калибровки")
+        mode_frame.pack(side=tk.LEFT, padx=20)
+        
+        for text, mode in modes:
+            tk.Radiobutton(mode_frame, text=text, variable=self.calibration_mode, 
+                          value=mode).pack(anchor=tk.W)
+        
+        # Фрейм для отображения изображения
+        self.image_frame = tk.Frame(self.root)
+        self.image_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        # Холст для изображения
+        self.canvas = tk.Canvas(self.image_frame, bg='black')
+        self.canvas.pack(fill=tk.BOTH, expand=True)
+        
+        # Привязываем события мыши
+        self.canvas.bind("<ButtonPress-1>", self.on_mouse_down)
+        self.canvas.bind("<B1-Motion>", self.on_mouse_drag)
+        self.canvas.bind("<ButtonRelease-1>", self.on_mouse_up)
+        
+        # Фрейм для статуса и координат
+        status_frame = tk.Frame(self.root)
+        status_frame.pack(side=tk.BOTTOM, fill=tk.X)
+        
+        self.status_label = tk.Label(status_frame, text="Готов")
+        self.status_label.pack(side=tk.LEFT, padx=10)
+        
+        self.coords_label = tk.Label(status_frame, text="")
+        self.coords_label.pack(side=tk.RIGHT, padx=10)
+        
+        # Начальные координаты выделения
+        self.start_x = None
+        self.start_y = None
+        self.rect_id = None
+        
+        # Размеры изображения
+        self.img_width = 0
+        self.img_height = 0
+    
+    def take_screenshot(self):
+        """Делает скриншот экрана"""
+        self.status_label.config(text="Делаем скриншот через 3 секунды...")
+        self.root.update()
+        
+        # Даем время переключиться на игру
+        for i in range(3, 0, -1):
+            self.status_label.config(text=f"Скриншот через {i}...")
+            self.root.update()
+            time.sleep(1)
+            
+        # Делаем скриншот
+        try:
+            screenshot = pyautogui.screenshot()
+            self.screenshot = np.array(screenshot)
+            self.img_height, self.img_width = self.screenshot.shape[:2]
+            
+            # Масштабируем для отображения, если нужно
+            self.display_image(self.screenshot)
+            
+            self.status_label.config(text=f"Скриншот сделан ({self.img_width}x{self.img_height})")
+        except Exception as e:
+            self.status_label.config(text=f"Ошибка при создании скриншота: {e}")
+    
+    def load_image(self):
+        """Загружает изображение из файла"""
+        from tkinter import filedialog
+        
+        filename = filedialog.askopenfilename(
+            title="Выберите изображение",
+            filetypes=[("Image files", "*.png;*.jpg;*.jpeg")]
+        )
+        
+        if filename:
+            try:
+                image = cv2.imread(filename)
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                self.screenshot = image
+                self.img_height, self.img_width = image.shape[:2]
+                
+                self.display_image(image)
+                self.status_label.config(text=f"Загружено изображение: {filename}")
+            except Exception as e:
+                self.status_label.config(text=f"Ошибка при загрузке изображени
+
+
+# === tools\extract_templates.py ===
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Скрипт для извлечения шаблонов из скриншота игры
+"""
+import os
+import sys
+import tkinter as tk
+from tkinter import filedialog, simpledialog, messagebox
+import cv2
+import numpy as np
+from PIL import Image, ImageTk
+from pathlib import Path
+
+class TemplateExtractor:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Извлечение шаблонов из скриншота")
+        self.root.geometry("1200x800")
+        
+        # Переменные
+        self.image = None  # Оригинальное изображение
+        self.display_image = None  # Отображаемое изображение
+        self.current_rect = None  # Текущий прямоугольник
+        self.start_x = None
+        self.start_y = None
+        self.scale_factor = 1.0  # Масштаб для отображения
+        
+        # Целевая директория для шаблонов
+        self.target_dir = tk.StringVar(value="templates/1920x1080")
+        
+        # Создаем интерфейс
+        self.create_ui()
+    
+    def create_ui(self):
+        """Создание пользовательского интерфейса"""
+        # Верхняя панель с кнопками
+        top_frame = tk.Frame(self.root)
+        top_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        # Кнопки для загрузки изображений
+        tk.Button(top_frame, text="Открыть скриншот", command=self.load_image).pack(side=tk.LEFT, padx=5)
+        tk.Button(top_frame, text="Сделать скриншот", command=self.take_screenshot).pack(side=tk.LEFT, padx=5)
+        
+        # Выбор директории для шаблонов
+        tk.Label(top_frame, text="Директория шаблонов:").pack(side=tk.LEFT, padx=10)
+        resolutions = ["templates/2560x1440", "templates/1920x1080", "templates/1600x900"]
+        res_menu = tk.OptionMenu(top_frame, self.target_dir, *resolutions)
+        res_menu.pack(side=tk.LEFT, padx=5)
+        
+        # Кнопка создания директории
+        tk.Button(top_frame, text="Выбрать папку...", command=self.browse_target_dir).pack(side=tk.LEFT, padx=5)
+        
+        # Холст для изображения
+        canvas_frame = tk.Frame(self.root)
+        canvas_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        self.canvas = tk.Canvas(canvas_frame, bg="gray", width=800, height=600)
+        self.canvas.pack(fill=tk.BOTH, expand=True)
+        
+        # Привязываем события мыши
+        self.canvas.bind("<ButtonPress-1>", self.on_mouse_down)
+        self.canvas.bind("<B1-Motion>", self.on_mouse_drag)
+        self.canvas.bind("<ButtonRelease-1>", self.on_mouse_up)
+        
+        # Статусная строка
+        self.status_var = tk.StringVar(value="Готово")
+        status_bar = tk.Label(self.root, textvariable=self.status_var, bd=1, relief=tk.SUNKEN, anchor=tk.W)
+        status_bar.pack(side=tk.BOTTOM, fill=tk.X)
+    
+    def load_image(self):
+        """Загрузка изображения из файла"""
+        file_path = filedialog.askopenfilename(
+            title="Выберите скриншот",
+            filetypes=[
+                ("Image files", "*.png *.jpg *.jpeg *.bmp"),
+                ("All files", "*.*")
+            ]
+        )
+        
+        if file_path:
+            try:
+                # Загружаем изображение
+                self.image = cv2.imread(file_path)
+                if self.image is None:
+                    raise ValueError("Не удалось загрузить изображение")
+                
+                # Конвертируем из BGR в RGB
+                self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
+                
+                # Отображаем изображение
+                self.display_image_on_canvas()
+                
+                # Обновляем статус
+                self.status_var.set(f"Загружен скриншот: {file_path}")
+            except Exception as e:
+                messagebox.showerror("Ошибка", f"Не удалось загрузить изображение: {e}")
+    
+    def take_screenshot(self):
+        """Создание скриншота"""
+        try:
+            import pyautogui
+            
+            # Уведомляем пользователя
+            self.status_var.set("Делаем скриншот через 3 секунды...")
+            self.root.update()
+            
+            # Даем время на переключение окон
+            for i in range(3, 0, -1):
+                self.status_var.set(f"Скриншот через {i}...")
+                self.root.update()
+                self.root.after(1000)
+            
+            # Делаем скриншот
+            screenshot = pyautogui.screenshot()
+            self.image = np.array(screenshot)
+            
+            # Отображаем
+            self.display_image_on_canvas()
+            
+            # Обновляем статус
+            height, width = self.image.shape[:2]
+            self.status_var.set(f"Сделан скриншот размером {width}x{height}")
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Не удалось сделать скриншот: {e}")
+    
+    def browse_target_dir(self):
+        """Выбор директории для сохранения шаблонов"""
+        directory = filedialog.askdirectory(title="Выберите директорию для шаблонов")
+        if directory:
+            self.target_dir.set(d
+
+
+# === tools\fishing_logic.py ===
+# Обновляем функцию вываживания рыбы в файле fishing_logic.py
+
+def hook_and_reel_in(self):
+    """
+    Подсечка и вываживание рыбы с использованием распознавания иконок
+    
+    Returns:
+        bool: True если рыба успешно поймана
+    """
+    # Получаем настройки из профиля
+    hook_delay = self.current_profile.get('hook_delay', 0.2)
+    max_reel_time = self.current_profile.get('max_reel_time', 60)
+    
+    # Делаем подсечку после небольшой задержки
+    time.sleep(hook_delay)
+    self.logger.info("Подсечка!")
+    self.controller.press_key('space')
+    time.sleep(0.5)
+    
+    # Процесс вываживания
+    start_time = time.time()
+    check_interval = 0.3  # Проверяем состояние рыбы каждые 0.3 секунды
+    
+    # Счетчики для анализа поведения рыбы
+    consecutive_pulling = 0
+    consecutive_normal = 0
+    consecutive_tired = 0
+    
+    # Флаг для отслеживания последнего действия
+    last_action = "WAIT"  # Возможные значения: "REEL", "WAIT"
+    
+    while (time.time() - start_time) < max_reel_time:
+        # Проверка на выход по горячей клавише
+        if self.controller.is_key_pressed('f12'):
+            self.logger.info("Прерывание по горячей клавише F12")
+            return False
+            
+        # Делаем скриншот и анализируем
+        screenshot = self.controller.take_screenshot()
+        if screenshot is None:
+            continue
+            
+        # Определяем состояние рыбы
+        fish_state = self.detector.detect_fish_state(screenshot)
+        
+        if fish_state == "CAUGHT":
+            self.logger.info("Рыба успешно поймана!")
+            time.sleep(2)  # Ждем анимацию пойманной рыбы
+            
+            # Проверяем наличие кнопки ОК и нажимаем на неё, если есть
+            is_ok_button, ok_pos = self.detector.find_template_in_region(
+                screenshot, 'ok', 'catch_region', threshold=0.7
+            )
+            if is_ok_button and ok_pos:
+                self.logger.info("Нажимаем кнопку OK")
+                self.controller.mouse_click(ok_pos[0], ok_pos[1])
+                time.sleep(1)
+            
+            return True
+                
+        elif fish_state == "LOST":
+            self.logger.info("Рыба сорвалась!")
+            return False
+                
+        elif fish_state == "PULLING":
+            # Рыба сильно сопротивляется
+            consecutive_pulling += 1
+            consecutive_normal = 0
+            consecutive_tired = 0
+            
+            if consecutive_pulling >= 2:  # Если рыба сопротивляется несколько проверок подряд
+                if last_action != "WAIT":
+                    self.logger.debug("Рыба сопротивляется, ослабляем натяжение")
+                    last_action = "WAIT"
+                time.sleep(random.uniform(0.5, 0.8))
+            else:
+                # Для короткого сопротивления можно просто сделать паузу
+                time.sleep(random.uniform(0.2, 0.4))
+                
+        elif fish_state == "TIRED":
+            # Рыба устала, можно активно подматывать
+            consecutive_tired += 1
+            consecutive_normal = 0
+            consecutive_pulling = 0
+            
+            if consecutive_tired >= 1:  # Если рыба устала, сразу подматываем
+                if last_action != "REEL":
+                    self.logger.debug("Рыба устала, активно подматываем")
+                    last_action = "REEL"
+                self.controller.press_key('r')
+                time.sleep(random.uniform(0.5, 1.0))
+                
+        elif fish_state == "NORMAL":
+            # Обычное вываживание
+            consecutive_normal += 1
+            consecutive_pulling = 0
+            consecutive_tired = max(0, consecutive_tired - 1)  # Уменьшаем счетчик усталости
+            
+            if consecutive_normal >= 2:  # Если состояние нормальное несколько проверок подряд
+                if last_action != "REEL":
+                    self.logger.debug("Нормальное вываживание, подматываем")
+                    last_action = "REEL"
+                self.controller.press_key('r')
+                time.sleep(random.uniform(0.3, 0.6))
+            else:
+                # Короткая пауза перед следующим действием
+                time.sleep(0.2)
+                
+        # Небольшая пауза между проверками состояния
+        time.sleep(check_interval)
+    
+    self.logger.info(f"Превышено максимальное время вываживания ({max_reel_time} сек)")
+    return False
+
+
+# === tools\organize_templates.py ===
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Инструмент для организации шаблонов иконок по папкам для разных разрешений
+"""
+import os
+import sys
+import shutil
+import cv2
+from pathlib import Path
+import argparse
+import tkinter as tk
+from tkinter import ttk, filedialog, messagebox
+
+class TemplateOrganizer:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Организатор шаблонов RF4")
+        self.root.geometry("800x600")
+        
+        # Переменные
+        self.source_dir = tk.StringVar()
+        self.target_base_dir = tk.StringVar(value="templates")
+        self.selected_files = []
+        
+        # Создаем интерфейс
+        self.create_ui()
+    
+    def create_ui(self):
+        """Создание интерфейса"""
+        # Верхний фрейм для выбора директорий
+        top_frame = ttk.Frame(self.root, padding="10")
+        top_frame.pack(fill=tk.X)
+        
+        ttk.Label(top_frame, text="Директория с иконками:").grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
+        ttk.Entry(top_frame, textvariable=self.source_dir, width=50).grid(row=0, column=1, padx=5, pady=5)
+        ttk.Button(top_frame, text="Обзор...", command=self.browse_source).grid(row=0, column=2, padx=5, pady=5)
+        
+        ttk.Label(top_frame, text="Целевая директория:").grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
+        ttk.Entry(top_frame, textvariable=self.target_base_dir, width=50).grid(row=1, column=1, padx=5, pady=5)
+        ttk.Button(top_frame, text="Обзор...", command=self.browse_target).grid(row=1, column=2, padx=5, pady=5)
+        
+        # Фрейм для отображения файлов
+        file_frame = ttk.LabelFrame(self.root, text="Доступные иконки", padding="10")
+        file_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        
+        # Создаем Treeview для отображения файлов
+        self.file_tree = ttk.Treeview(file_frame, columns=("size", "type"), selectmode="extended")
+        self.file_tree.heading("#0", text="Имя файла")
+        self.file_tree.heading("size", text="Размер")
+        self.file_tree.heading("type", text="Тип")
+        
+        self.file_tree.column("#0", width=300)
+        self.file_tree.column("size", width=100, anchor=tk.E)
+        self.file_tree.column("type", width=100)
+        
+        # Добавляем скроллбар
+        scrollbar = ttk.Scrollbar(file_frame, orient="vertical", command=self.file_tree.yview)
+        self.file_tree.configure(yscrollcommand=scrollbar.set)
+        
+        # Размещаем дерево и скроллбар
+        self.file_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        # Фрейм для кнопок
+        btn_frame = ttk.Frame(self.root, padding="10")
+        btn_frame.pack(fill=tk.X)
+        
+        ttk.Button(btn_frame, text="Выбрать все", command=self.select_all).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="Снять выбор", command=self.deselect_all).pack(side=tk.LEFT, padx=5)
+        
+        # Выбор разрешений
+        res_frame = ttk.LabelFrame(self.root, text="Целевые разрешения", padding="10")
+        res_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        self.res_2560 = tk.BooleanVar(value=True)
+        self.res_1920 = tk.BooleanVar(value=True)
+        self.res_1600 = tk.BooleanVar(value=True)
+        
+        ttk.Checkbutton(res_frame, text="2560x1440 (QHD)", variable=self.res_2560).pack(side=tk.LEFT, padx=10)
+        ttk.Checkbutton(res_frame, text="1920x1080 (Full HD)", variable=self.res_1920).pack(side=tk.LEFT, padx=10)
+        ttk.Checkbutton(res_frame, text="1600x900 (HD+)", variable=self.res_1600).pack(side=tk.LEFT, padx=10)
+        
+        # Кнопки действий
+        action_frame = ttk.Frame(self.root, padding="10")
+        action_frame.pack(fill=tk.X)
+        
+        ttk.Button(action_frame, text="Копировать шаблоны", command=self.copy_templates).pack(side=tk.RIGHT, padx=5)
+        ttk.Button(action_frame, text="Обновить список", command=self.refresh_file_list).pack(side=tk.RIGHT, padx=5)
+        
+        # Статусная строка
+        self.status_var = tk.StringVar(value="Готов")
+        ttk.Label(self.root, textvariable=self.status_var, relief=tk.SUNKEN, anchor=tk.W).pack(fill=tk.X, side=tk.BOTTOM, padx=10, pady=5)
+    
+    def browse_source(self):
+        """Выбор исходной директории"""
+        directory = filedialog.askdirectory(title="Выберите директорию с иконками")
+        if directory:
+            self.source_dir.set(directory)
+            self.refresh_file_list()
+    
+    def browse_target(self):
+        """Выбор целевой директории"""
+        directory = filedialog.askdirectory(title="Выберите целевую директорию")
+        if directory:
+            self.target_base_dir.set(directory)
+    
+    def refresh_file_list(self):
+        """Обновление списка файлов"""
+        # Очищаем дерево
+        for item in self.file_tree.get_children():
+            self.file_tree.delete(item)
+            
+        # Проверяем, что директория выбрана
+        source_dir = self.sour
+
+
+# === tools\resolution_tester.py ===
+"""
+Утилита для тестирования поддержки разных разрешений экрана
+"""
+import os
+import sys
+import tkinter as tk
+from tkinter import ttk, messagebox
+import pyautogui
+import cv2
+import numpy as np
+from PIL import Image, ImageTk
+from pathlib import Path
+
+# Добавляем путь к основным модулям
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from bot.adaptive_resolution import ResolutionManager
+from bot.utils import save_screenshot
+
+class ResolutionTester:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("RF4 Resolution Tester")
+        self.root.geometry("1000x700")
+        
+        # Переменные
+        self.current_image = None
+        self.screenshot = None
+        self.resolution_manager = ResolutionManager()
+        
+        # Создаем интерфейс
+        self.create_ui()
+    
+    def create_ui(self):
+        """Создание интерфейса"""
+        # Верхний фрейм
+        top_frame = tk.Frame(self.root)
+        top_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        # Кнопки управления
+        tk.Button(top_frame, text="Сделать скриншот", 
+                 command=self.take_screenshot).pack(side=tk.LEFT, padx=5)
+                 
+        tk.Button(top_frame, text="Определить разрешение", 
+                 command=self.detect_resolution).pack(side=tk.LEFT, padx=5)
+                 
+        tk.Button(top_frame, text="Загрузить шаблоны", 
+                 command=self.load_templates).pack(side=tk.LEFT, padx=5)
+                 
+        tk.Button(top_frame, text="Тест областей", 
+                 command=self.test_regions).pack(side=tk.LEFT, padx=5)
+        
+        # Разделитель
+        separator = ttk.Separator(self.root, orient='horizontal')
+        separator.pack(fill=tk.X, padx=10, pady=5)
+        
+        # Фрейм для отображения результатов
+        info_frame = tk.Frame(self.root)
+        info_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        tk.Label(info_frame, text="Текущее разрешение:").pack(side=tk.LEFT)
+        self.resolution_label = tk.Label(info_frame, text="Не определено")
+        self.resolution_label.pack(side=tk.LEFT, padx=10)
+        
+        tk.Label(info_frame, text="Шаблоны:").pack(side=tk.LEFT, padx=10)
+        self.templates_label = tk.Label(info_frame, text="Не загружены")
+        self.templates_label.pack(side=tk.LEFT, padx=10)
+        
+        # Фрейм для изображения
+        self.image_frame = tk.Frame(self.root)
+        self.image_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        # Холст для изображения
+        self.canvas = tk.Canvas(self.image_frame, bg='black')
+        self.canvas.pack(fill=tk.BOTH, expand=True)
+        
+        # Статусная строка
+        self.status_bar = tk.Label(self.root, text="Готов", bd=1, relief=tk.SUNKEN, anchor=tk.W)
+        self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
+    
+    def take_screenshot(self):
+        """Создание скриншота экрана"""
+        self.status_bar.config(text="Делаем скриншот через 3 секунды...")
+        self.root.update()
+        
+        # Даем время переключиться на игру
+        for i in range(3, 0, -1):
+            self.status_bar.config(text=f"Скриншот через {i}...")
+            self.root.update()
+            import time
+            time.sleep(1)
+            
+        # Делаем скриншот
+        try:
+            screenshot = pyautogui.screenshot()
+            self.screenshot = np.array(screenshot)
+            
+            # Отображаем на холсте
+            self.display_image(self.screenshot)
+            
+            # Обновляем статус
+            height, width = self.screenshot.shape[:2]
+            self.status_bar.config(text=f"Скриншот создан: {width}x{height}")
+            
+            # Сохраняем для отладки
+            save_screenshot(self.screenshot, "resolution_test")
+            
+        except Exception as e:
+            self.status_bar.config(text=f"Ошибка при создании скриншота: {e}")
+            messagebox.showerror("Ошибка", f"Не удалось создать скриншот: {e}")
+    
+    def detect_resolution(self):
+        """Определение текущего разрешения"""
+        if self.screenshot is None:
+            messagebox.showwarning("Предупреждение", "Сначала сделайте скриншот")
+            return
+            
+        try:
+            # Определяем разрешение
+            width, height = self.resolution_manager.detect_resolution(self.screenshot)
+            
+            # Обновляем метку
+            self.resolution_label.config(text=f"{width}x{height}")
+            
+            # Устанавливаем путь к шаблонам
+            template_path = self.resolution_manager.set_template_path()
+            config_path = self.resolution_manager.set_config_path()
+            
+            # Обновляем статус
+            self.status_bar.config(
+                text=f"Разрешение: {width}x{height}, Шаблоны: {template_path}, Конфигурация: {config_path}"
+            )
+            
+        except Exception as e:
+            self.status_bar.config(text=f"Ошибка при определ
+
+
+# === tools\template_creator.py ===
+"""
+Утилита для создания шаблонов распознавания для разных разрешений
+"""
+import sys
+import os
+import cv2
+import numpy as np
+import tkinter as tk
+from tkinter import filedialog, messagebox
+from PIL import Image, ImageTk
+from pathlib import Path
+
+class TemplateCreator:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("RF4 Template Creator")
+        self.root.geometry("1200x800")
+        
+        # Переменные
+        self.current_image = None
+        self.screenshot = None
+        self.selected_area = None
+        self.template_name = tk.StringVar()
+        self.resolution = tk.StringVar()
+        self.resolution.set("2560x1440")  # По умолчанию QHD
+        
+        # Создание интерфейса
+        self.create_ui()
+        
+        # Размеры и масштаб
+        self.img_width = 0
+        self.img_height = 0
+        self.scale_factor = 1.0
+        
+        # Координаты выделения
+        self.start_x = None
+        self.start_y = None
+        self.rect_id = None
+    
+    def create_ui(self):
+        """Создание элементов интерфейса"""
+        # Верхний фрейм с кнопками
+        top_frame = tk.Frame(self.root)
+        top_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        # Кнопки и поля ввода
+        tk.Button(top_frame, text="Сделать скриншот", 
+                 command=self.take_screenshot).pack(side=tk.LEFT, padx=5)
+                 
+        tk.Button(top_frame, text="Загрузить изображение", 
+                 command=self.load_image).pack(side=tk.LEFT, padx=5)
+        
+        # Поле для имени шаблона
+        tk.Label(top_frame, text="Имя шаблона:").pack(side=tk.LEFT, padx=5)
+        tk.Entry(top_frame, textvariable=self.template_name, width=20).pack(side=tk.LEFT, padx=5)
+        
+        # Выбор разрешения
+        tk.Label(top_frame, text="Разрешение:").pack(side=tk.LEFT, padx=5)
+        resolutions = ["2560x1440", "1920x1080", "1600x900"]
+        resolution_menu = tk.OptionMenu(top_frame, self.resolution, *resolutions)
+        resolution_menu.pack(side=tk.LEFT, padx=5)
+        
+        # Кнопка сохранения шаблона
+        tk.Button(top_frame, text="Сохранить шаблон", 
+                 command=self.save_template).pack(side=tk.LEFT, padx=15)
+        
+        # Фрейм для отображения изображения
+        self.image_frame = tk.Frame(self.root)
+        self.image_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        # Холст для изображения
+        self.canvas = tk.Canvas(self.image_frame, bg='black')
+        self.canvas.pack(fill=tk.BOTH, expand=True)
+        
+        # Привязываем события мыши
+        self.canvas.bind("<ButtonPress-1>", self.on_mouse_down)
+        self.canvas.bind("<B1-Motion>", self.on_mouse_drag)
+        self.canvas.bind("<ButtonRelease-1>", self.on_mouse_up)
+        
+        # Нижний фрейм для статуса
+        bottom_frame = tk.Frame(self.root)
+        bottom_frame.pack(side=tk.BOTTOM, fill=tk.X)
+        
+        self.status_label = tk.Label(bottom_frame, text="Готов")
+        self.status_label.pack(side=tk.LEFT, padx=10)
+        
+        self.coords_label = tk.Label(bottom_frame, text="")
+        self.coords_label.pack(side=tk.RIGHT, padx=10)
+    
+    def take_screenshot(self):
+        """Делает скриншот экрана"""
+        import pyautogui
+        
+        self.status_label.config(text="Делаем скриншот через 3 секунды...")
+        self.root.update()
+        
+        # Даем время переключиться на игру
+        for i in range(3, 0, -1):
+            self.status_label.config(text=f"Скриншот через {i}...")
+            self.root.update()
+            import time
+            time.sleep(1)
+            
+        # Делаем скриншот
+        try:
+            screenshot = pyautogui.screenshot()
+            self.screenshot = np.array(screenshot)
+            self.img_height, self.img_width = self.screenshot.shape[:2]
+            
+            # Отображаем скриншот
+            self.display_image(self.screenshot)
+            
+            self.status_label.config(text=f"Скриншот сделан ({self.img_width}x{self.img_height})")
+        except Exception as e:
+            self.status_label.config(text=f"Ошибка при создании скриншота: {e}")
+    
+    def load_image(self):
+        """Загружает изображение из файла"""
+        filename = filedialog.askopenfilename(
+            title="Выберите изображение",
+            filetypes=[("Image files", "*.png;*.jpg;*.jpeg")]
+        )
+        
+        if filename:
+            try:
+                image = cv2.imread(filename)
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                self.screenshot = image
+                self.img_height, self.img_width = image.shape[:2]
+                
+                self.display_image(image)
+                self.status_label.config(text=f"Загружено изображение: {filename}")
+            except Exception as e:
+                self.status_label.config(text=f"Ошибка при загрузке изображения: {e}")
+    
+    def display_image(self, image):
+        """Отображает изображение на холсте"""
+ 
+
+
+# === tools\config\config.yaml ===
+regions:
+  float:
+    bottom: 0.9416666666666667
+    left: 0.45234375
+    right: 0.5453125
+    top: 0.7770833333333333
+  indicator:
+    bottom: 0.9875
+    left: 0.332421875
+    right: 0.665625
+    top: 0.9756944444444444
+
+
+
+# === tools\templates\1600x900\0m.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\100wear.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\5m.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\bait_icon.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\broke.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\carrot.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\classic_feed_mix.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\coffee.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\comfort.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\confirm.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\disconnected.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\dry_feed_mix.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\energy.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\exit.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\favorite.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\fish_icon.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\food.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\groundbait_icon.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\harvest_confirm.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\herring.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\keep.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\lure_is_broken.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\mackerel.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\make.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\mark.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\material_slot.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\movement.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\mussel.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\ok.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\ok_black.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\ok_white.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\perch.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\pva_icon.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\quit.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\ready.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\saithe.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\scallop.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\scrollbar.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\shorthorn_sculpin.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\squid.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\tea.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\ticket.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\ticket_1.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\ticket_2.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\ticket_3.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\ticket_5.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\warning.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\welcome.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\wheel.png ===
+Это картинка
+
+
+# === tools\templates\1600x900\yes.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\0m.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\100wear.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\5m.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\bait_icon.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\broke.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\carrot.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\classic_feed_mix.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\coffee.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\comfort.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\confirm.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\disconnected.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\dry_feed_mix.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\energy.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\exit.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\favorite.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\fish_icon.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\food.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\groundbait_icon.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\harvest_confirm.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\herring.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\keep.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\lure_is_broken.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\mackerel.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\make.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\mark.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\material_slot.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\movement.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\mussel.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\ok.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\ok_black.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\ok_white.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\perch.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\pva_icon.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\quit.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\ready.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\saithe.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\scallop.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\scrollbar.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\shorthorn_sculpin.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\squid.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\tea.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\ticket.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\ticket_1.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\ticket_2.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\ticket_3.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\ticket_5.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\warning.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\welcome.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\wheel.png ===
+Это картинка
+
+
+# === tools\templates\1920x1080\yes.png ===
+Это картинка
+
+
+# === tools\templates\2560x1440\fish_hook.png ===
+Это картинка
+
+
+# === tools\templates\2560x1440\ok.png ===
+Это картинка
