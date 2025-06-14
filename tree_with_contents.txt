@@ -1,4 +1,153 @@
 📁 ./
+    📄 .gitignore
+        # Byte-compiled / optimized / DLL files
+        __pycache__/
+        *.py[cod]
+        *$py.class
+        
+        # C extensions
+        *.so
+        
+        # Distribution / packaging
+        .Python
+        build/
+        develop-eggs/
+        dist/
+        downloads/
+        eggs/
+        .eggs/
+        lib/
+        lib64/
+        parts/
+        sdist/
+        var/
+        wheels/
+        pip-wheel-metadata/
+        share/python-wheels/
+        *.egg-info/
+        .installed.cfg
+        *.egg
+        MANIFEST
+        
+        # PyInstaller
+        *.manifest
+        *.spec
+        
+        # Installer logs
+        pip-log.txt
+        pip-delete-this-directory.txt
+        
+        # Unit test / coverage reports
+        htmlcov/
+        .tox/
+        .nox/
+        .coverage
+        .coverage.*
+        .cache
+        nosetests.xml
+        coverage.xml
+        *.cover
+        *.py,cover
+        .hypothesis/
+        .pytest_cache/
+        
+        # Translations
+        *.mo
+        *.pot
+        
+        # Django stuff:
+        *.log
+        local_settings.py
+        db.sqlite3
+        db.sqlite3-journal
+        
+        # Flask stuff:
+        instance/
+        .webassets-cache
+        
+        # Scrapy stuff:
+        .scrapy
+        
+        # Sphinx documentation
+        docs/_build/
+        
+        # PyBuilder
+        target/
+        
+        # Jupyter Notebook
+        .ipynb_checkpoints
+        
+        # IPython
+        profile_default/
+        ipython_config.py
+        
+        # pyenv
+        .python-version
+        
+        # pipenv
+        Pipfile.lock
+        
+        # PEP 582
+        __pypackages__/
+        
+        # Celery stuff
+        celerybeat-schedule
+        celerybeat.pid
+        
+        # SageMath parsed files
+        *.sage.py
+        
+        # Environments
+        .env
+        .venv
+        env/
+        venv/
+        ENV/
+        env.bak/
+        venv.bak/
+        
+        # Spyder project settings
+        .spyderproject
+        .spyproject
+        
+        # Rope project settings
+        .ropeproject
+        
+        # mkdocs documentation
+        /site
+        
+        # mypy
+        .mypy_cache/
+        .dmypy.json
+        dmypy.json
+        
+        # Pyre type checker
+        .pyre/
+        
+        # Russian Fishing 4 Bot specific
+        config.yaml
+        config.yaml.backup
+        logs/
+        screenshots/
+        data/
+        *.exe
+        *.zip
+        
+        # IDE
+        .vscode/
+        .idea/
+        *.swp
+        *.swo
+        *~
+        
+        # OS
+        .DS_Store
+        .DS_Store?
+        ._*
+        .Spotlight-V100
+        .Trashes
+        ehthumbs.db
+        Thumbs.db
     📄 config.yaml
         VERSION: 0.5.2
         SCRIPT:
@@ -28,10 +177,10 @@
           - 2
           - 3
           COFFEE: -1
-          DIGGING_TOOL: -1
-          ALCOHOL: -1
-          MAIN_ROD: -1
-          SPOD_ROD: -1
+          DIGGING_TOOL: 5
+          ALCOHOL: 6
+          MAIN_ROD: 1  # Исправлено: было -1, теперь 1
+          SPOD_ROD: 7
           QUIT: CTRL-C
         STAT:
           ENERGY_THRESHOLD: 0.74
@@ -43,10 +192,10 @@
           ALCOHOL_DELAY: 900
           ALCOHOL_PER_DRINK: 1
         FRICTION_BRAKE:
-          INITIAL: 15
-          MAX: 26
-          START_DELAY: 0.01
-          INCREASE_DELAY: 0.01
+          INITIAL: 29
+          MAX: 30
+          START_DELAY: 2.0
+          INCREASE_DELAY: 1.0
           SENSITIVITY: medium
         KEEPNET:
           CAPACITY: 100
@@ -72,7 +221,7 @@
           PASSWORD: ''
           SMTP_SERVER: ''
           MIAO_CODE: ''
-          DISCORD_WEBHOOK_URL: https://discord.com/api/webhooks/1381306998586343637/t-6xkZiqrACMLSs_DhzE_p9dPAG-sVhUzN_bXqnf7SukxpRhNxL6jS8QfRKySoeKhgeJ
+          DISCORD_WEBHOOK_URL: ''  # Очищено из соображений безопасности
         PAUSE:
           DELAY: 1800
           DURATION: 600
@@ -453,12 +602,16 @@
         from typing import Dict, Any, List, Tuple
         import copy
         import re
+        from dotenv import load_dotenv
         
         
         class ConfigManager:
             """Manages configuration loading, saving, and validation with enhanced features."""
             
             def __init__(self):
+                # Загружаем переменные окружения из .env файла
+                load_dotenv()
+                
                 self.config = {}
                 self.default_config = self._get_default_config()
                 self.config_file_path = None
@@ -489,7 +642,7 @@
                         "COFFEE": -1,
                         "DIGGING_TOOL": 5,
                         "ALCOHOL": 6,
-                        "MAIN_ROD": 1,
+                        "MAIN_ROD": 1,  # Изменено с -1 на 1 как базовое значение
                         "SPOD_ROD": 7,
                         "QUIT": "CTRL-C"
                     },
@@ -520,11 +673,11 @@
                         "TAGS": ["green", "yellow", "blue", "purple", "pink"]
                     },
                     "NOTIFICATION": {
-                        "EMAIL": "",
-                        "PASSWORD": "",
-                        "SMTP_SERVER": "smtp.gmail.com",
-                        "MIAO_CODE": "",
-                        "DISCORD_WEBHOOK_URL": ""
+                        "EMAIL": os.getenv("EMAIL", ""),
+                        "PASSWORD": os.getenv("EMAIL_PASSWORD", ""),
+                        "SMTP_SERVER": os.getenv("SMTP_SERVER", "smtp.gmail.com"),
+                        "MIAO_CODE": os.getenv("MIAO_CODE", ""),
+                        "DISCORD_WEBHOOK_URL": os.getenv("DISCORD_WEBHOOK_URL", "")
                     },
                     "PAUSE": {
                         "DELAY": 1800,
@@ -688,6 +841,32 @@
                     }
                 }
                 
+            def validate_startup_config(self) -> List[str]:
+                """Проверить критические настройки перед запуском скрипта."""
+                errors = []
+                
+                # Проверить основные ключи
+                keys = self.config.get('KEY', {})
+                if keys.get('MAIN_ROD', -1) == -1:
+                    errors.append("MAIN_ROD не настроен (значение -1)")
+                
+                # Проверить профили
+                profiles = self.config.get('PROFILE', {})
+                if not profiles:
+                    errors.append("Не найдено ни одного профиля")
+                
+                # Проверить версию
+                version = self.config.get('VERSION')
+                if not version:
+                    errors.append("Версия конфигурации не указана")
+                
+                # Проверить критические настройки скрипта
+                script = self.config.get('SCRIPT', {})
+                if not isinstance(script.get('SPOOL_CONFIDENCE'), (int, float)):
+                    errors.append("SPOOL_CONFIDENCE должен быть числом")
+                
+                return errors
+            
             def load_config(self, file_path: str) -> None:
                 """Load configuration from YAML file with enhanced error handling."""
                 try:
@@ -702,6 +881,14 @@
                     # Validate and merge with defaults
                     self.config = self._merge_with_defaults(loaded_config)
                     self._validate_config()
+                    
+                    # Проверить критические настройки для запуска
+                    startup_errors = self.validate_startup_config()
+                    if startup_errors:
+                        print("⚠️  Обнаружены проблемы конфигурации:")
+                        for error in startup_errors:
+                            print(f"   - {error}")
+                        print("Рекомендуется исправить эти проблемы перед запуском скрипта.")
                     
                 except yaml.YAMLError as e:
                     raise Exception(f"Invalid YAML format in {file_path}: {str(e)}")
@@ -723,10 +910,13 @@
                     # Ensure directory exists
                     os.makedirs(os.path.dirname(file_path) if os.path.dirname(file_path) else ".", exist_ok=True)
                     
+                    # Очистить чувствительные данные перед сохранением
+                    config_to_save = self._sanitize_config_for_save(self.config)
+                    
                     # Save configuration
                     with open(file_path, 'w', encoding='utf-8') as f:
                         yaml.dump(
-                            self.config, 
+                            config_to_save, 
                             f, 
                             default_flow_style=False,
                             allow_unicode=True, 
@@ -739,6 +929,20 @@
                     
                 except Exception as e:
                     raise Exception(f"Failed to save configuration to {file_path}: {str(e)}")
+            
+            def _sanitize_config_for_save(self, config: dict) -> dict:
+                """Очистить чувствительные данные из конфигурации перед сохранением."""
+                sanitized = copy.deepcopy(config)
+                
+                # Очистить чувствительные данные из NOTIFICATION
+                if 'NOTIFICATION' in sanitized:
+                    notification = sanitized['NOTIFICATION']
+                    notification['EMAIL'] = ""
+                    notification['PASSWORD'] = ""
+                    notification['DISCORD_WEBHOOK_URL'] = ""
+                    notification['MIAO_CODE'] = ""
+                    
+                return sanitized
                     
             def _merge_with_defaults(self, loaded_config: dict) -> dict:
                 """Merge loaded config with defaults, preserving user settings."""
@@ -979,6 +1183,17 @@
                     'config_file': self.config_file_path or 'Not saved'
                 }
                 return summary
+    📄 env.example
+        # Discord webhook URL для уведомлений
+        DISCORD_WEBHOOK_URL=your_webhook_url_here
+        
+        # Email настройки (опционально)
+        EMAIL=your_email@example.com
+        EMAIL_PASSWORD=your_app_password
+        SMTP_SERVER=smtp.gmail.com
+        
+        # Miao Code для уведомлений (опционально)
+        MIAO_CODE=your_miao_code_here
     📄 main_window.py
         """
         Modern PyQt6 GUI for Russian Fishing 4 Script
@@ -2771,18 +2986,7 @@
         
         if __name__ == "__main__":
             main()
-    📄 requirements_gui.txt
-        # GUI Framework
-        PyQt6>=6.4.0
-        
-        # Configuration management
-        PyYAML>=6.0
-        pyyaml>=6.0
-        
-        # Process monitoring and system information
-        psutil>=5.8.0
-        
-        # Additional utilities (optional but recommended)
+    📄 requirements.txt
         pathlib2>=2.3.0; python_version < "3.4"
         pyautogui==0.9.54
         keyboard==0.13.5
@@ -2802,6 +3006,13 @@
         PyQt6>=6.4.0
         PyYAML>=6.0
         pyyaml>=6.0
+        PyQt6>=6.4.0
+        PyYAML>=6.0
+        python-dotenv>=1.0.0
+        psutil>=5.8.0
+        opencv-python>=4.7.0
+        numpy>=1.21.0
+        requests>=2.28.0
         # reference: https://stackoverflow.com/questions/68704443/python-playsound-error-261-for-command-the-driver-cannot-recognize-the-specifie
     📄 script_runner.py
         """
@@ -3310,6 +3521,285 @@
             print("   - Конфигурация будет сохранена в config.yaml")
             print("   - Логи сохраняются в папку logs/")
             print("   - Скриншоты сохраняются в папку screenshots/")
+        
+        if __name__ == "__main__":
+            main()
+    📄 startup_validator.py
+        """
+        Модуль для валидации конфигурации перед запуском скрипта
+        Проверяет критические настройки и выводит понятные сообщения об ошибках
+        """
+        
+        import os
+        import sys
+        from typing import List, Dict, Any
+        from config_manager import ConfigManager
+        
+        
+        class StartupValidator:
+            """Валидатор для проверки готовности конфигурации к запуску."""
+            
+            def __init__(self, config_manager: ConfigManager):
+                self.config_manager = config_manager
+                self.config = config_manager.config
+                
+            def validate_all(self) -> Dict[str, Any]:
+                """
+                Полная валидация конфигурации.
+                
+                Returns:
+                    Dict с результатами валидации:
+                    {
+                        'is_valid': bool,
+                        'errors': List[str],
+                        'warnings': List[str],
+                        'recommendations': List[str]
+                    }
+                """
+                result = {
+                    'is_valid': True,
+                    'errors': [],
+                    'warnings': [],
+                    'recommendations': []
+                }
+                
+                # Критические проверки
+                critical_errors = self._check_critical_settings()
+                result['errors'].extend(critical_errors)
+                
+                # Предупреждения
+                warnings = self._check_warnings()
+                result['warnings'].extend(warnings)
+                
+                # Рекомендации
+                recommendations = self._check_recommendations()
+                result['recommendations'].extend(recommendations)
+                
+                # Проверка переменных окружения
+                env_warnings = self._check_environment_variables()
+                result['warnings'].extend(env_warnings)
+                
+                result['is_valid'] = len(result['errors']) == 0
+                
+                return result
+            
+            def _check_critical_settings(self) -> List[str]:
+                """Проверка критических настроек, без которых скрипт не может работать."""
+                errors = []
+                
+                # Проверка основного удилища
+                keys = self.config.get('KEY', {})
+                main_rod = keys.get('MAIN_ROD', -1)
+                if main_rod == -1:
+                    errors.append(
+                        "MAIN_ROD не настроен (значение -1). "
+                        "Установите номер клавиши для основного удилища (обычно 1-9)."
+                    )
+                elif not isinstance(main_rod, int) or main_rod < 1 or main_rod > 9:
+                    errors.append(
+                        f"MAIN_ROD имеет некорректное значение: {main_rod}. "
+                        "Должно быть число от 1 до 9."
+                    )
+                
+                # Проверка профилей
+                profiles = self.config.get('PROFILE', {})
+                if not profiles:
+                    errors.append("Не найдено ни одного профиля рыбалки.")
+                else:
+                    # Проверка корректности профилей
+                    for profile_name, profile_config in profiles.items():
+                        if not isinstance(profile_config, dict):
+                            errors.append(f"Профиль '{profile_name}' имеет некорректный формат.")
+                            continue
+                            
+                        mode = profile_config.get('MODE')
+                        if not mode:
+                            errors.append(f"Профиль '{profile_name}': не указан MODE.")
+                        elif mode not in ['spin', 'bottom', 'pirk', 'elevator', 'telescopic', 'bolognese']:
+                            errors.append(f"Профиль '{profile_name}': некорректный MODE '{mode}'.")
+                
+                # Проверка версии конфигурации
+                version = self.config.get('VERSION')
+                if not version:
+                    errors.append("Версия конфигурации не указана.")
+                
+                return errors
+            
+            def _check_warnings(self) -> List[str]:
+                """Проверка настроек, которые могут вызвать проблемы."""
+                warnings = []
+                
+                keys = self.config.get('KEY', {})
+                
+                # Проверка дополнительных ключей
+                if keys.get('SPOD_ROD', -1) != -1 and keys.get('SPOD_ROD') == keys.get('MAIN_ROD'):
+                    warnings.append("SPOD_ROD и MAIN_ROD используют одну и ту же клавишу.")
+                
+                # Проверка удилищ для донной ловли
+                bottom_rods = keys.get('BOTTOM_RODS', [])
+                main_rod = keys.get('MAIN_ROD', -1)
+                if main_rod != -1 and main_rod not in bottom_rods:
+                    warnings.append(
+                        f"MAIN_ROD ({main_rod}) не входит в список BOTTOM_RODS {bottom_rods}. "
+                        "Это может вызвать проблемы при донной ловле."
+                    )
+                
+                # Проверка настроек скрипта
+                script = self.config.get('SCRIPT', {})
+                spool_confidence = script.get('SPOOL_CONFIDENCE', 0.98)
+                if spool_confidence < 0.9:
+                    warnings.append(
+                        f"SPOOL_CONFIDENCE установлен на {spool_confidence}, что довольно низко. "
+                        "Рекомендуется значение 0.95-0.98."
+                    )
+                
+                # Проверка тормоза фрикциона
+                friction = self.config.get('FRICTION_BRAKE', {})
+                initial = friction.get('INITIAL', 29)
+                max_brake = friction.get('MAX', 30)
+                if initial >= max_brake:
+                    warnings.append(
+                        f"FRICTION_BRAKE INITIAL ({initial}) >= MAX ({max_brake}). "
+                        "Это может привести к неправильной работе тормоза."
+                    )
+                
+                return warnings
+            
+            def _check_recommendations(self) -> List[str]:
+                """Проверка настроек для оптимизации работы."""
+                recommendations = []
+                
+                keys = self.config.get('KEY', {})
+                
+                # Рекомендации по дополнительным ключам
+                if keys.get('TEA', -1) == -1:
+                    recommendations.append(
+                        "Рекомендуется настроить клавишу TEA для автоматического восстановления энергии."
+                    )
+                
+                if keys.get('COFFEE', -1) == -1:
+                    recommendations.append(
+                        "Рекомендуется настроить клавишу COFFEE для повышения энергии."
+                    )
+                
+                # Рекомендации по уведомлениям
+                notification = self.config.get('NOTIFICATION', {})
+                if not notification.get('DISCORD_WEBHOOK_URL') and not notification.get('EMAIL'):
+                    recommendations.append(
+                        "Рекомендуется настроить уведомления (Discord или Email) "
+                        "для получения информации о работе скрипта."
+                    )
+                
+                # Рекомендации по настройкам скрипта
+                script = self.config.get('SCRIPT', {})
+                if not script.get('SNAG_DETECTION'):
+                    recommendations.append(
+                        "Рекомендуется включить SNAG_DETECTION для автоматического обнаружения зацепов."
+                    )
+                
+                if not script.get('SPOOLING_DETECTION'):
+                    recommendations.append(
+                        "Рекомендуется включить SPOOLING_DETECTION для предотвращения сматывания лески."
+                    )
+                
+                return recommendations
+            
+            def _check_environment_variables(self) -> List[str]:
+                """Проверка переменных окружения."""
+                warnings = []
+                
+                # Проверка .env файла
+                if not os.path.exists('.env'):
+                    warnings.append(
+                        "Файл .env не найден. Создайте его на основе .env.example "
+                        "для безопасного хранения чувствительных данных."
+                    )
+                
+                # Проверка критических переменных окружения
+                env_vars = ['DISCORD_WEBHOOK_URL', 'EMAIL', 'EMAIL_PASSWORD']
+                missing_vars = []
+                
+                for var in env_vars:
+                    if not os.getenv(var):
+                        missing_vars.append(var)
+                
+                if missing_vars:
+                    warnings.append(
+                        f"Не установлены переменные окружения: {', '.join(missing_vars)}. "
+                        "Уведомления могут не работать."
+                    )
+                
+                return warnings
+            
+            def print_validation_report(self, result: Dict[str, Any]) -> None:
+                """Вывод отчета о валидации в консоль."""
+                print("=" * 60)
+                print("🔍 ОТЧЕТ О ВАЛИДАЦИИ КОНФИГУРАЦИИ")
+                print("=" * 60)
+                
+                if result['is_valid']:
+                    print("✅ Конфигурация готова к запуску!")
+                else:
+                    print("❌ Обнаружены критические ошибки!")
+                
+                print()
+                
+                # Критические ошибки
+                if result['errors']:
+                    print("🚨 КРИТИЧЕСКИЕ ОШИБКИ:")
+                    for i, error in enumerate(result['errors'], 1):
+                        print(f"   {i}. {error}")
+                    print()
+                
+                # Предупреждения
+                if result['warnings']:
+                    print("⚠️  ПРЕДУПРЕЖДЕНИЯ:")
+                    for i, warning in enumerate(result['warnings'], 1):
+                        print(f"   {i}. {warning}")
+                    print()
+                
+                # Рекомендации
+                if result['recommendations']:
+                    print("💡 РЕКОМЕНДАЦИИ:")
+                    for i, rec in enumerate(result['recommendations'], 1):
+                        print(f"   {i}. {rec}")
+                    print()
+                
+                print("=" * 60)
+                
+                if not result['is_valid']:
+                    print("Исправьте критические ошибки перед запуском скрипта.")
+                    return False
+                
+                return True
+        
+        
+        def main():
+            """Основная функция для тестирования валидатора."""
+            if len(sys.argv) < 2:
+                config_path = "config.yaml"
+            else:
+                config_path = sys.argv[1]
+            
+            try:
+                # Загрузка конфигурации
+                config_manager = ConfigManager()
+                config_manager.load_config(config_path)
+                
+                # Валидация
+                validator = StartupValidator(config_manager)
+                result = validator.validate_all()
+                
+                # Вывод отчета
+                is_valid = validator.print_validation_report(result)
+                
+                # Возврат кода ошибки
+                sys.exit(0 if is_valid else 1)
+                
+            except Exception as e:
+                print(f"❌ Ошибка при валидации: {e}")
+                sys.exit(1)
+        
         
         if __name__ == "__main__":
             main()
@@ -5530,87 +6020,184 @@
                     [ERROR: Unable to decode as UTF-8 or read file]
         📁 config/
             📄 config.py
-                """RF4S Configuration management"""
-                import os
+                """
+                Основной модуль конфигурации с поддержкой переменных окружения
+                """
+                
                 import yaml
+                import os
+                import copy
+                from pathlib import Path
+                from typing import Dict, Any, List, Optional
+                from .env_config import EnvironmentConfig
+                from .defaults import get_default_config
                 
-                try:
-                    from rich import print
-                    from rich.console import Console
-                    from rich.table import Table
-                    console = Console()
-                    RICH_AVAILABLE = True
-                except ImportError:
-                    RICH_AVAILABLE = False
-                    console = None
                 
-                def print_cfg(cfg_node, title=None):
-                    """Print configuration in table format"""
-                    if title is None:
-                        title = "Configuration"
+                class ConfigManager:
+                    """Менеджер конфигурации с поддержкой переменных окружения."""
                     
-                    if RICH_AVAILABLE:
-                        table = Table(title=title, show_header=True, header_style="bold magenta")
-                        table.add_column("Parameter", style="cyan", no_wrap=True)
-                        table.add_column("Value", style="green")
-                        
-                        def add_items(obj, prefix=""):
-                            if hasattr(obj, '__dict__'):
-                                for key, value in obj.__dict__.items():
-                                    if not key.startswith('_'):
-                                        full_key = f"{prefix}.{key}" if prefix else key
-                                        if hasattr(value, '__dict__') and not callable(value):
-                                            add_items(value, full_key)
-                                        else:
-                                            table.add_row(full_key, str(value))
-                        
-                        add_items(cfg_node)
-                        console.print(table)
-                    else:
-                        print(f"\n=== {title} ===")
-                        def print_items(obj, prefix=""):
-                            if hasattr(obj, '__dict__'):
-                                for key, value in obj.__dict__.items():
-                                    if not key.startswith('_'):
-                                        full_key = f"{prefix}.{key}" if prefix else key
-                                        if hasattr(value, '__dict__') and not callable(value):
-                                            print_items(value, full_key)
-                                        else:
-                                            print(f"{full_key}: {value}")
-                        print_items(cfg_node)
-                
-                def setup_cfg():
-                    """Setup default configuration"""
-                    class CfgNode:
-                        def __init__(self):
-                            self.FRICTION_BRAKE = type('obj', (object,), {
-                                'INITIAL': 29,
-                                'MAX': 30,
-                                'START_DELAY': 2.0,
-                                'INCREASE_DELAY': 1.0,
-                                'SENSITIVITY': 'medium'
-                            })()
-                            
-                            self.ARGS = type('obj', (object,), {
-                                'QUIT_KEY': 'h',
-                                'RESET_KEY': 'g'
-                            })()
-                            
-                            self.KEY = type('obj', (object,), {
-                                'QUIT': 'CTRL-C'
-                            })()
-                            
-                        def freeze(self): pass
-                        def defrost(self): pass
-                        def merge_from_file(self, path): pass
-                        def merge_from_other_cfg(self, other): pass
-                        def merge_from_list(self, opts): pass
+                    def __init__(self):
+                        self.env_config = EnvironmentConfig()
+                        self.config = {}
+                        self.config_file_path = None
+                        self._default_config = None
                     
-                    return CfgNode()
-                
-                def dict_to_cfg(d):
-                    """Convert dictionary to cfg format"""
-                    return d
+                    @property
+                    def default_config(self) -> Dict[str, Any]:
+                        """Получить дефолтную конфигурацию с переменными окружения."""
+                        if self._default_config is None:
+                            self._default_config = get_default_config()
+                            
+                            # Интегрируем переменные окружения
+                            env_email = self.env_config.get_email_config()
+                            self._default_config['NOTIFICATION'] = {
+                                'EMAIL': env_email['email'],
+                                'PASSWORD': env_email['password'],
+                                'SMTP_SERVER': env_email['smtp_server'],
+                                'MIAO_CODE': self.env_config.get_miao_code() or '',
+                                'DISCORD_WEBHOOK_URL': self.env_config.get_discord_webhook_url() or ''
+                            }
+                        
+                        return self._default_config
+                    
+                    def load_config(self, file_path: str) -> None:
+                        """Загрузка конфигурации из YAML файла."""
+                        try:
+                            self.config_file_path = file_path
+                            
+                            if not os.path.exists(file_path):
+                                print(f"⚠️  Файл конфигурации не найден: {file_path}")
+                                print("Используется конфигурация по умолчанию")
+                                self.config = copy.deepcopy(self.default_config)
+                                return
+                                
+                            with open(file_path, 'r', encoding='utf-8') as f:
+                                loaded_config = yaml.safe_load(f) or {}
+                            
+                            # Объединяем с дефолтной конфигурацией
+                            self.config = self._merge_configs(self.default_config, loaded_config)
+                            
+                            # Валидация переменных окружения
+                            env_validation = self.env_config.validate_environment()
+                            if env_validation['warnings']:
+                                print("⚠️  Предупреждения по переменным окружения:")
+                                for warning in env_validation['warnings']:
+                                    print(f"   - {warning}")
+                            
+                        except yaml.YAMLError as e:
+                            raise Exception(f"Ошибка в YAML файле {file_path}: {str(e)}")
+                        except Exception as e:
+                            raise Exception(f"Не удалось загрузить конфигурацию из {file_path}: {str(e)}")
+                    
+                    def save_config(self, file_path: Optional[str] = None) -> None:
+                        """Сохранение конфигурации в YAML файл."""
+                        if file_path is None:
+                            file_path = self.config_file_path
+                        
+                        if file_path is None:
+                            raise ValueError("Не указан путь для сохранения конфигурации")
+                        
+                        try:
+                            # Создаем бэкап если файл существует
+                            if os.path.exists(file_path):
+                                backup_path = f"{file_path}.backup"
+                                import shutil
+                                shutil.copy2(file_path, backup_path)
+                            
+                            # Очищаем чувствительные данные перед сохранением
+                            config_to_save = self._sanitize_for_save(self.config)
+                            
+                            # Сохраняем
+                            os.makedirs(os.path.dirname(file_path) or ".", exist_ok=True)
+                            
+                            with open(file_path, 'w', encoding='utf-8') as f:
+                                yaml.dump(
+                                    config_to_save,
+                                    f,
+                                    default_flow_style=False,
+                                    allow_unicode=True,
+                                    sort_keys=False,
+                                    indent=2,
+                                    width=120
+                                )
+                            
+                            self.config_file_path = file_path
+                            print(f"✅ Конфигурация сохранена: {file_path}")
+                            
+                        except Exception as e:
+                            raise Exception(f"Не удалось сохранить конфигурацию в {file_path}: {str(e)}")
+                    
+                    def _merge_configs(self, default: dict, loaded: dict) -> dict:
+                        """Объединение конфигураций с приоритетом загруженной."""
+                        result = default.copy()
+                        
+                        for key, value in loaded.items():
+                            if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+                                result[key] = self._merge_configs(result[key], value)
+                            else:
+                                result[key] = value
+                        
+                        return result
+                    
+                    def _sanitize_for_save(self, config: dict) -> dict:
+                        """Удаление чувствительных данных перед сохранением."""
+                        sanitized = copy.deepcopy(config)
+                        
+                        # Очищаем секцию NOTIFICATION
+                        if 'NOTIFICATION' in sanitized:
+                            notification = sanitized['NOTIFICATION']
+                            notification['EMAIL'] = ''
+                            notification['PASSWORD'] = ''
+                            notification['DISCORD_WEBHOOK_URL'] = ''
+                            notification['MIAO_CODE'] = ''
+                        
+                        return sanitized
+                    
+                    def validate_startup(self) -> List[str]:
+                        """Валидация критических настроек перед запуском."""
+                        errors = []
+                        
+                        # Проверяем основное удилище
+                        keys = self.config.get('KEY', {})
+                        main_rod = keys.get('MAIN_ROD', -1)
+                        
+                        if main_rod == -1:
+                            errors.append("MAIN_ROD не настроен (значение -1)")
+                        elif not isinstance(main_rod, int) or main_rod < 1 or main_rod > 9:
+                            errors.append(f"MAIN_ROD имеет некорректное значение: {main_rod}")
+                        
+                        # Проверяем профили
+                        profiles = self.config.get('PROFILE', {})
+                        if not profiles:
+                            errors.append("Не найдено ни одного профиля")
+                        
+                        # Проверяем версию
+                        if not self.config.get('VERSION'):
+                            errors.append("Версия конфигурации не указана")
+                        
+                        return errors
+                    
+                    def get_profile_config(self, profile_name: str) -> dict:
+                        """Получить конфигурацию профиля."""
+                        profiles = self.config.get('PROFILE', {})
+                        return profiles.get(profile_name, {}).copy()
+                    
+                    def get_profile_list(self) -> List[str]:
+                        """Получить список доступных профилей."""
+                        return list(self.config.get('PROFILE', {}).keys())
+                    
+                    def get_notification_config(self) -> dict:
+                        """Получить конфигурацию уведомлений с переменными окружения."""
+                        config_notification = self.config.get('NOTIFICATION', {})
+                        env_email = self.env_config.get_email_config()
+                        
+                        return {
+                            'EMAIL': env_email['email'] or config_notification.get('EMAIL', ''),
+                            'PASSWORD': env_email['password'] or config_notification.get('PASSWORD', ''),
+                            'SMTP_SERVER': env_email['smtp_server'] or config_notification.get('SMTP_SERVER', 'smtp.gmail.com'),
+                            'MIAO_CODE': self.env_config.get_miao_code() or config_notification.get('MIAO_CODE', ''),
+                            'DISCORD_WEBHOOK_URL': self.env_config.get_discord_webhook_url() or config_notification.get('DISCORD_WEBHOOK_URL', '')
+                        }
             📄 config.yaml
                 VERSION: "0.5.2"
                 
@@ -6213,6 +6800,69 @@
                     # Return a clone so that the defaults will not be altered
                     # This is for the "local variable" use pattern
                     return _C.clone()
+            📄 env_config.py
+                """
+                Модуль для работы с переменными окружения
+                """
+                
+                import os
+                from typing import Optional
+                from dotenv import load_dotenv
+                
+                
+                class EnvironmentConfig:
+                    """Управление переменными окружения для безопасности."""
+                    
+                    def __init__(self):
+                        # Загружаем переменные из .env файла
+                        load_dotenv()
+                    
+                    def get_discord_webhook_url(self) -> Optional[str]:
+                        """Получить Discord webhook URL из переменных окружения."""
+                        return os.getenv('DISCORD_WEBHOOK_URL')
+                    
+                    def get_email_config(self) -> dict:
+                        """Получить настройки email из переменных окружения."""
+                        return {
+                            'email': os.getenv('EMAIL', ''),
+                            'password': os.getenv('EMAIL_PASSWORD', ''),
+                            'smtp_server': os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+                        }
+                    
+                    def get_miao_code(self) -> Optional[str]:
+                        """Получить Miao код из переменных окружения."""
+                        return os.getenv('MIAO_CODE')
+                    
+                    def is_env_file_exists(self) -> bool:
+                        """Проверить существование .env файла."""
+                        return os.path.exists('.env')
+                    
+                    def validate_environment(self) -> dict:
+                        """
+                        Валидация переменных окружения.
+                        
+                        Returns:
+                            Dict с результатами проверки
+                        """
+                        result = {
+                            'env_file_exists': self.is_env_file_exists(),
+                            'discord_configured': bool(self.get_discord_webhook_url()),
+                            'email_configured': bool(self.get_email_config()['email']),
+                            'miao_configured': bool(self.get_miao_code()),
+                            'warnings': []
+                        }
+                        
+                        if not result['env_file_exists']:
+                            result['warnings'].append(
+                                "Файл .env не найден. Создайте его на основе .env.example"
+                            )
+                        
+                        if not result['discord_configured'] and not result['email_configured']:
+                            result['warnings'].append(
+                                "Уведомления не настроены. Добавьте DISCORD_WEBHOOK_URL или EMAIL в .env"
+                            )
+                        
+                        return result
             📄 __init__.py
                 """RF4S Config module"""
                 from . import config
@@ -6221,6 +6871,8 @@
                 📄 config.cpython-312.pyc
                     [ERROR: Unable to decode as UTF-8 or read file]
                 📄 defaults.cpython-312.pyc
+                    [ERROR: Unable to decode as UTF-8 or read file]
+                📄 env_config.cpython-312.pyc
                     [ERROR: Unable to decode as UTF-8 or read file]
                 📄 __init__.cpython-312.pyc
                     [ERROR: Unable to decode as UTF-8 or read file]
@@ -7701,6 +8353,126 @@
                 except Exception as e:
                     logger.critical(e, exc_info=True)
                 safe_exit()
+        📄 diagnostics.py
+            """
+            Диагностический скрипт для проверки конфигурации и готовности к запуску
+            """
+            
+            import sys
+            import os
+            sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            
+            from rf4s.config.config import ConfigManager
+            from rf4s.config.env_config import EnvironmentConfig
+            
+            
+            def run_diagnostics():
+                """Запуск полной диагностики системы."""
+                print("🔍 ДИАГНОСТИКА Russian Fishing 4 Bot")
+                print("=" * 50)
+                
+                # Проверка переменных окружения
+                print("\n1. Проверка переменных окружения:")
+                env_config = EnvironmentConfig()
+                env_validation = env_config.validate_environment()
+                
+                if env_validation['env_file_exists']:
+                    print("   ✅ .env файл найден")
+                else:
+                    print("   ❌ .env файл не найден")
+                
+                if env_validation['discord_configured']:
+                    print("   ✅ Discord webhook настроен")
+                else:
+                    print("   ⚠️  Discord webhook не настроен")
+                
+                if env_validation['email_configured']:
+                    print("   ✅ Email уведомления настроены")
+                else:
+                    print("   ⚠️  Email уведомления не настроены")
+                
+                # Проверка конфигурации
+                print("\n2. Проверка конфигурации:")
+                try:
+                    config_manager = ConfigManager()
+                    
+                    # Попытка загрузить config.yaml
+                    config_path = "config.yaml"
+                    if os.path.exists(config_path):
+                        config_manager.load_config(config_path)
+                        print("   ✅ config.yaml загружен")
+                    else:
+                        print("   ⚠️  config.yaml не найден, используется дефолтная конфигурация")
+                    
+                    # Валидация критических настроек
+                    startup_errors = config_manager.validate_startup()
+                    
+                    if not startup_errors:
+                        print("   ✅ Критические настройки в порядке")
+                    else:
+                        print("   ❌ Обнаружены критические ошибки:")
+                        for error in startup_errors:
+                            print(f"      - {error}")
+                    
+                    # Информация о профилях
+                    profiles = config_manager.get_profile_list()
+                    print(f"   📋 Доступно профилей: {len(profiles)}")
+                    for profile in profiles:
+                        print(f"      - {profile}")
+                    
+                except Exception as e:
+                    print(f"   ❌ Ошибка загрузки конфигурации: {e}")
+                    return False
+                
+                # Проверка зависимостей
+                print("\n3. Проверка зависимостей:")
+                required_modules = ['PyQt6', 'yaml', 'dotenv', 'PIL', 'cv2', 'numpy', 'requests']
+                
+                for module in required_modules:
+                    try:
+                        if module == 'PyQt6':
+                            import PyQt6
+                        elif module == 'yaml':
+                            import yaml
+                        elif module == 'dotenv':
+                            import dotenv
+                        elif module == 'PIL':
+                            import PIL
+                        elif module == 'cv2':
+                            import cv2
+                        elif module == 'numpy':
+                            import numpy
+                        elif module == 'requests':
+                            import requests
+                        
+                        print(f"   ✅ {module}")
+                    except ImportError:
+                        print(f"   ❌ {module} - не установлен")
+                
+                # Итоговое заключение
+                print("\n" + "=" * 50)
+                
+                if startup_errors:
+                    print("❌ СИСТЕМА НЕ ГОТОВА К ЗАПУСКУ")
+                    print("\nИсправьте следующие проблемы:")
+                    for error in startup_errors:
+                        print(f"  - {error}")
+                    
+                    print("\nРекомендации:")
+                    if not env_validation['env_file_exists']:
+                        print("  - Создайте .env файл на основе .env.example")
+                    if not env_validation['discord_configured'] and not env_validation['email_configured']:
+                        print("  - Настройте уведомления в .env файле")
+                    
+                    return False
+                else:
+                    print("✅ СИСТЕМА ГОТОВА К ЗАПУСКУ")
+                    return True
+            
+            
+            if __name__ == "__main__":
+                success = run_diagnostics()
+                sys.exit(0 if success else 1)
         📄 harvest.py
             """Script for automatic baits harvesting and hunger/comfort refill.
             
@@ -8606,6 +9378,101 @@
                 except Exception as e:
                     logger.critical(e, exc_info=True)
                 safe_exit()
+        📄 quick_fix.py
+            """
+            Быстрое исправление конфигурации
+            """
+            
+            import sys
+            import os
+            sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            
+            from rf4s.config.config import ConfigManager
+            
+            
+            def quick_fix_config():
+                """Быстрое исправление основных проблем конфигурации."""
+                print("🛠️  БЫСТРОЕ ИСПРАВЛЕНИЕ КОНФИГУРАЦИИ")
+                print("=" * 40)
+                
+                config_manager = ConfigManager()
+                config_path = "config.yaml"
+                
+                try:
+                    # Загружаем существующую конфигурацию или создаем новую
+                    if os.path.exists(config_path):
+                        config_manager.load_config(config_path)
+                        print("✅ Загружена существующая конфигурация")
+                    else:
+                        print("⚠️  config.yaml не найден, создается новый")
+                    
+                    # Исправляем критические проблемы
+                    fixed_issues = []
+                    
+                    # Исправляем MAIN_ROD
+                    keys = config_manager.config.get('KEY', {})
+                    if keys.get('MAIN_ROD', -1) == -1:
+                        keys['MAIN_ROD'] = 1
+                        fixed_issues.append("MAIN_ROD установлен в 1")
+                    
+                    # Очищаем чувствительные данные из config.yaml
+                    notification = config_manager.config.get('NOTIFICATION', {})
+                    if notification.get('DISCORD_WEBHOOK_URL'):
+                        notification['DISCORD_WEBHOOK_URL'] = ''
+                        fixed_issues.append("Discord webhook URL очищен из config.yaml")
+                    
+                    if notification.get('EMAIL'):
+                        notification['EMAIL'] = ''
+                        notification['PASSWORD'] = ''
+                        fixed_issues.append("Email данные очищены из config.yaml")
+                    
+                    # Устанавливаем безопасные значения для FRICTION_BRAKE
+                    friction = config_manager.config.get('FRICTION_BRAKE', {})
+                    if friction.get('INITIAL', 15) >= friction.get('MAX', 26):
+                        friction['INITIAL'] = 29
+                        friction['MAX'] = 30
+                        fixed_issues.append("Исправлены настройки FRICTION_BRAKE")
+                    
+                    # Сохраняем исправленную конфигурацию
+                    config_manager.save_config(config_path)
+                    
+                    print(f"\n✅ Конфигурация исправлена! Изменения:")
+                    for issue in fixed_issues:
+                        print(f"  - {issue}")
+                    
+                    # Создаем .env.example если его нет
+                    env_example_path = ".env.example"
+                    if not os.path.exists(env_example_path):
+                        with open(env_example_path, 'w', encoding='utf-8') as f:
+                            f.write("""# Discord webhook URL для уведомлений
+            DISCORD_WEBHOOK_URL=your_webhook_url_here
+            
+            # Email настройки (опционально)
+            EMAIL=your_email@example.com
+            EMAIL_PASSWORD=your_app_password
+            SMTP_SERVER=smtp.gmail.com
+            
+            # Miao Code для уведомлений (опционально)
+            MIAO_CODE=your_miao_code_here
+            """)
+                        print("  - Создан .env.example")
+                    
+                    print(f"\n📋 Следующие шаги:")
+                    print("  1. Создайте .env файл на основе .env.example")
+                    print("  2. Добавьте ваш Discord webhook URL в .env")
+                    print("  3. Настройте клавиши в GUI или config.yaml по необходимости")
+                    print("  4. Запустите диагностику: python tools/diagnostics.py")
+                    
+                    return True
+                    
+                except Exception as e:
+                    print(f"❌ Ошибка при исправлении: {e}")
+                    return False
+            
+            
+            if __name__ == "__main__":
+                success = quick_fix_config()
+                sys.exit(0 if success else 1)
         📄 __init__.py
             """Tools module"""
             __version__ = "0.5.2"
